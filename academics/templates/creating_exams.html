@@ -1,0 +1,80 @@
+{% extends 'teacher_base.html' %}
+{% load crispy_forms_tags %} <!-- Load the crispy_forms_tags -->
+
+{% block content %}
+<style>
+    .form-container {
+        padding: 2rem;
+        background-color: #f8f9fa; /* Light gray background for the form area */
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); /* Soft shadow around the form */
+    }
+    .save-btn {
+        background-color: #007bff; /* Bootstrap primary color */
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s; /* Smooth transition for hover effect */
+    }
+    .save-btn:hover {
+        background-color: #0056b3; /* Darken button color on hover */
+    }
+</style>
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="card my-4 wider-card">
+            <div class="card-body overflow-auto form-container">
+                <h5 class="card-header text-center mb-4">Create custom Examination</h5>
+                <form method="post" class="form">
+                    {% csrf_token %}
+
+                    <div class="col-xl">{{ form.class_information|as_crispy_field }}</div>
+
+                    <div class="col-xl">{{ form.class_level|as_crispy_field }}</div>
+
+                    <div id="custom_name_section" class="col-xl" style="display: none;"><br>
+                        <h6 class="card-header text-center mb-4"><span>Record the Custom Name</span></h6>
+                        {{ form.examination_name|as_crispy_field }}
+                    </div>
+                    <br>
+
+
+                    <div class="col-xl">{{ form.date_added|as_crispy_field }}</div>
+
+
+                    <br>
+                    <div class="text-center">
+                        <button type="submit" class="save-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const classLevelSelect = document.getElementById('class_level');
+    const customNameSection = document.getElementById('custom_name_section');
+
+    // Function to show/hide the custom name section based on class level selection
+    function toggleCustomNameSection() {
+        if (classLevelSelect.value === 'Custom name') {
+            customNameSection.style.display = ''; // Show
+        } else {
+            customNameSection.style.display = 'none'; // Hide
+        }
+    }
+
+    // Initially call the function to set the correct display state
+    toggleCustomNameSection();
+
+    // Add an event listener to toggle the display state on change
+    classLevelSelect.addEventListener('change', toggleCustomNameSection);
+});
+</script>
+
+{% endblock %}

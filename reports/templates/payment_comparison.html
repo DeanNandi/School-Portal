@@ -1,0 +1,168 @@
+{% extends 'report_base.html' %}
+{% load static humanize %}
+
+{% block content %}
+<style>
+  .matched {
+    color: green;
+  }
+
+  .unmatched {
+    color: red;
+  }
+
+  .amount-matched {
+    color: green;
+  }
+
+  .amount-unmatched {
+    color: red;
+  }
+
+  .aside-bar {
+    width: 200px;
+    background-color: #f8f9fa;
+    padding: 1em;
+    margin-right: 1em;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .aside-bar h4 {
+    margin-bottom: 1em;
+    color: #007bff;
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+
+  .aside-bar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .aside-bar li {
+    margin-bottom: 0.5em;
+  }
+
+  .aside-bar a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+
+  .aside-bar a:hover {
+    color: #007bff;
+  }
+
+  .aside-bar .active {
+    color: #007bff;
+  }
+
+  .update-button {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .update-button:hover {
+    background-color: #0056b3;
+  }
+</style>
+
+<main id="main">
+  <section id="payment-comparison" class="payment-comparison">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h4 class="card-title">Filter Records</h4>
+              <ul class="list-unstyled">
+                <li><a href="?filter=all" {% if filter_option == 'all' or not filter_option %}class="active"{% endif %}>All Records</a></li>
+                <li><a href="?filter=matched" {% if filter_option == 'matched' %}class="active"{% endif %}>Matched Records</a></li>
+                <li><a href="?filter=unmatched" {% if filter_option == 'unmatched' %}class="active"{% endif %}>Unmatched Records</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h4 class="card-title">Date Range Filter</h4>
+              <form method="GET" action="">
+                <div class="form-group">
+                  <label for="start_date">Start Date:</label>
+                  <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date|date:'Y-m-d' }}">
+                </div>
+                <div class="form-group">
+                  <label for="end_date">End Date:</label>
+                  <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date|date:'Y-m-d' }}">
+                </div>
+                <input type="hidden" name="filter" value="{{ filter_option }}">
+                <button type="submit" class="btn btn-primary mt-2">Apply Date Filter</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="col-md-12">
+          <div class="card my-4 wider-card">
+            <h2 class="text-center mb-4">Payment Comparison</h2>
+            <form method="POST">
+              {% csrf_token %}
+              <table id="example3" class="table table-striped overflow-auto table-responsive" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Receipt</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Transaction Details</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for record in payment_records %}
+                  <tr>
+                    <td>{{ record.candidate_name }}</td>
+                    <td>{{ record.phone_number }}</td>
+                    <td>{{ record.receipt_number }}</td>
+                    <td>{{ record.date_of_payment }}</td>
+                    <td>
+                      {{ record.amount_paid|intcomma }} / {{ record.mode_of_payment }}
+                    </td>
+                    <td>
+                      <input type="text" name="transaction_details_{{ record.id }}" value="{{ record.transaction_details }}"><br><br>
+                      <button type="submit" name="update_{{ record.id }}" class="update-button">Update</button>
+                    </td>
+                    <td>
+                      <div class="{% if record.matched %}matched{% else %}unmatched{% endif %}">
+                        {% if record.matched %}Code Matched / {% else %}Code Unmatched / {% endif %}
+                      </div>
+                      <div class="{% if record.amount_matched %}amount-matched{% else %}amount-unmatched{% endif %}">
+                        {% if record.amount_matched %}Amount Matched{% else %}Amount Unmatched{% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="7" class="text-center">No payment records found.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

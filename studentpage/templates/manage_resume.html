@@ -1,0 +1,510 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+<!--general scripts-->
+<style>
+    .date-button, .class-button {
+        margin: 2px;
+        padding: 5px 10px;
+        background-color: #f0f0f0;
+        border: 1px solid #dcdcdc;
+        cursor: pointer;
+    }
+
+    .date-button:hover, .class-button:hover {
+        background-color: #e0e0e0;
+    }
+
+    .selected-date, .selected-class {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    .selected-date::after, .selected-class::after {
+        content: '\2713';
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    .vertical-space {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .wider-card {
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0,0,0,.125);
+        padding: 0.75rem 1.25rem;
+    }
+
+    .card-header h6 {
+        margin-bottom: 0;
+        color: #495057;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .card-title {
+        color: #007bff;
+        font-weight: bold;
+    }
+
+
+    .action-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .action-button:hover {
+        background-color: #0056b3;
+    }
+
+    .action-button-previous {
+        background-color: #6c757d;
+    }
+
+    .action-button-previous:hover {
+        background-color: #545b62;
+    }
+
+    fieldset {
+        display: none;
+    }
+
+    fieldset:first-of-type {
+        display: block;
+    }
+
+    .form-control:read-only {
+        background-color: #e9ecef;
+    }
+</style>
+<!--progress bar-->
+<style>
+    #progressbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0;
+        margin: 0 0 2rem 0;
+        overflow-x: auto;
+        list-style-type: none;
+    }
+
+    #progressbar li {
+        flex: 1;
+        text-align: center;
+        font-size: 0.75rem;
+        position: relative;
+        padding: 0 5px;
+    }
+
+    #progressbar li a {
+        color: #6c757d;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: color 0.3s ease;
+    }
+
+    #progressbar li::before {
+        content: '';
+        width: 20px;
+        height: 20px;
+        border: 2px solid #6c757d;
+        display: block;
+        margin: 0 auto 5px auto;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    #progressbar li::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background-color: #6c757d;
+        top: 9px;
+        left: 50%;
+        z-index: -1;
+    }
+
+    #progressbar li:last-child::after {
+        content: none;
+    }
+
+    #progressbar li.active a {
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    #progressbar li.active::before {
+        border-color: #007bff;
+        background-color: #007bff;
+    }
+
+    #progressbar li.completed::before {
+        border-color: #28a745;
+        background-color: #28a745;
+    }
+
+    #progressbar li.completed a {
+        color: #28a745;
+    }
+
+    @media (max-width: 768px) {
+        #progressbar li {
+            font-size: 0.6rem;
+        }
+        #progressbar li::before {
+            width: 15px;
+            height: 15px;
+        }
+    }
+</style>
+<!--header-->
+<style>
+    .resume-header {
+        text-align: center;
+        padding: 1.5rem 0;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 2rem;
+    }
+
+    .resume-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .resume-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+
+    .resume-icon {
+        font-size: 2.5rem;
+        color: #007bff;
+    }
+</style>
+<!-- Add this to your existing styles -->
+<style>
+    .inline-notification {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        display: none;
+    }
+
+    .inline-notification.error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+</style>
+<!--Image Resume Header-->
+<style>
+    .resume-photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+        border: 3px solid #007bff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .resume-icon {
+        font-size: 2.5rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+    }
+</style>
+<main id="main">
+    {% if candidate.photo %}
+    <img id="candidatePhoto" src="{{ candidate.photo.url }}" style="display: none;" alt="Candidate Photo">
+    {% else %}
+    <img id="candidatePhoto" src="" style="display: none;" alt="No Photo Available">
+    {% endif %}
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="card my-4 wider-card">
+            <div class="container overflow-auto">
+                <div class="card-body">
+                    <div class="resume-header">
+                        {% if candidate.photo %}
+                        <img src="{{ candidate.photo.url }}" alt="{{ candidate.First_Name }} {{ candidate.Last_Name }}"
+                             class="resume-photo"
+                             style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem;">
+                        {% else %}
+                        <p class="alert alert-warning mt-2" style="font-size: 0.9rem; display: inline-block;">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Upload your passport photo in "My Details" to complete your profile.
+                        </p><br>
+                        <i class="resume-icon bi bi-file-earmark-text"></i>
+                        {% endif %}
+                        <h1 class="resume-title">Resume Form</h1>
+                        <p class="resume-subtitle">Build or Update Your Resume</p>
+                        <p>Version: {{ resume.version }} | Current: {% if resume.is_current %}Yes{% else %}No{% endif %}</p>
+                    </div>
+                    <!-- inline notification -->
+                    <div id="notification" class="inline-notification">
+                        <p id="notificationMessage"></p>
+                    </div>
+                    <form id="msform" method="POST" action="{% url 'manage_resume' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <ul id="progressbar">
+                            <li class="active"><a href="#personal-info"><span class="step-icon"></span>Personal</a></li>
+                            <li><a href="#professional-summary"><span class="step-icon"></span>Summary</a></li>
+                            <li><a href="#work-experience"><span class="step-icon"></span>Experience</a></li>
+                            <li><a href="#education"><span class="step-icon"></span>Education</a></li>
+                            <li><a href="#skills"><span class="step-icon"></span>Skills</a></li>
+                            <li><a href="#languages"><span class="step-icon"></span>Languages</a></li>
+                            <li><a href="#certifications"><span class="step-icon"></span>Certificates</a></li>
+                            <li><a href="#additional-info"><span class="step-icon"></span>Additional</a></li>
+                            <li><a href="#preview"><span class="step-icon"></span>Preview</a></li>
+                        </ul>
+
+                        <!-- Personal Information -->
+                        <fieldset id="personal-info">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Personal Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="First_Name" placeholder="First Name" value="{{ candidate.First_Name }}" readonly/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="Last_Name" placeholder="Last Name" value="{{ candidate.Last_Name }}" readonly/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="email" class="form-control" name="email_address" placeholder="Email" value="{{ candidate.email_address }}" readonly/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="phone_number" placeholder="Phone" value="{{ candidate.phone_number }}" readonly/>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="button" name="next" class="next action-button" value="Next"/>
+                        </fieldset>
+
+                        <!-- Professional Summary -->
+                        <fieldset id="professional-summary">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Professional Summary</h6>
+                                </div>
+                                <div class="card-body">
+                                    {{ form.summary|as_crispy_field }}
+                                </div>
+                            </div>
+                            <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                            <input type="button" name="next" class="next action-button" value="Next"/>
+                        </fieldset>
+
+                        <!-- Work Experience -->
+                        <fieldset id="work-experience">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Work Experience</h6>
+                                </div>
+                                <div class="card-body">
+                                    {{ form.work_experiences|as_crispy_field }}
+                                </div>
+                            </div>
+                            <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                            <input type="button" name="next" class="next action-button" value="Next"/>
+                        </fieldset>
+
+                        <!-- Education -->
+                        <fieldset id="education">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Education</h6>
+                                </div>
+                                <div class="card-body">
+                                    {{ form.educations|as_crispy_field }}
+                                </div>
+                            </div>
+                            <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                            <input type="button" name="next" class="next action-button" value="Next"/>
+                        </fieldset>
+
+                        <!-- Skills -->
+                        <fieldset id="skills">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Skills</h6>
+                                </div>
+                                <div class="card-body">
+                                    {{ form.technical_skills|as_crispy_field }}
+                                    {{ form.soft_skills|as_crispy_field }}
+                                </div>
+                            </div>
+                            <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                            <input type="button" name="next" class="next action-button" value="Next"/>
+                        </fieldset>
+
+                        <!-- Languages -->
+                        <fieldset id="languages">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Languages</h6>
+                                </div>
+                                <div class="card-body">
+                                    {{ form.languages|as_crispy_field }}
+                                </div>
+                            </div>
+                            <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                            <input type="button" name="next" class="next action-button" value="Next"/>
+                        </fieldset>
+
+                        <!-- Certifications -->
+                        <fieldset id="certifications">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Certifications</h6>
+                                </div>
+                                <div class="card-body">
+                                    {{ form.certifications|as_crispy_field }}
+                                </div>
+                            </div>
+                            <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                            <input type="button" name="next" class="next action-button" value="Next"/>
+                        </fieldset>
+
+                        <!-- Additional Information -->
+                        <fieldset id="additional-info">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Additional Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    {{ form.projects|as_crispy_field }}
+                                    {{ form.volunteer_experiences|as_crispy_field }}
+                                    {{ form.awards|as_crispy_field }}
+                                    {{ form.publications|as_crispy_field }}
+                                    {{ form.memberships|as_crispy_field }}
+                                    {{ form.interests|as_crispy_field }}
+                                    {{ form.references|as_crispy_field }}
+                                    {{ form.additional_info|as_crispy_field }}
+                                </div>
+                            </div>
+                            <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                            <input type="button" name="next" class="next action-button" value="Next"/>
+                        </fieldset>
+
+                        <!-- Preview & Finish -->
+                        <fieldset id="preview">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Preview & Finish</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Please review your resume information before submitting.</p>
+                                    <button type="button" class="btn btn-primary" id="previewButton">
+                                        Preview Resume
+                                    </button>
+                                </div>
+                            </div>
+
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <br><br>
+    </div>
+    {% include "resume_preview_modal.html" %}
+</main>
+
+<script>
+    var resumePreviewModal = new bootstrap.Modal(document.getElementById('resumePreviewModal'))
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static '/js/resume_preview.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $("#progressbar li").click(function() {
+            var step = $(this).index();
+            $("#progressbar li").removeClass("active completed");
+            for (var i = 0; i <= step; i++) {
+                if (i === step) {
+                    $("#progressbar li").eq(i).addClass("active");
+                } else {
+                    $("#progressbar li").eq(i).addClass("completed");
+                }
+            }
+            $("fieldset").hide();
+            $("fieldset").eq(step).show();
+        });
+
+        $(".next").click(function() {
+            var current = $(this).parent();
+            var next = $(this).parent().next();
+            var step = $("fieldset").index(next);
+            $("#progressbar li").removeClass("active completed");
+            for (var i = 0; i <= step; i++) {
+                if (i === step) {
+                    $("#progressbar li").eq(i).addClass("active");
+                } else {
+                    $("#progressbar li").eq(i).addClass("completed");
+                }
+            }
+            next.show();
+            current.hide();
+        });
+
+        $(".previous").click(function() {
+            var current = $(this).parent();
+            var prev = $(this).parent().prev();
+            var step = $("fieldset").index(prev);
+            $("#progressbar li").removeClass("active completed");
+            for (var i = 0; i <= step; i++) {
+                if (i === step) {
+                    $("#progressbar li").eq(i).addClass("active");
+                } else {
+                    $("#progressbar li").eq(i).addClass("completed");
+                }
+            }
+            prev.show();
+            current.hide();
+        });
+    });
+</script>
+{% endblock %}

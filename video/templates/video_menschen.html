@@ -1,0 +1,63 @@
+{% extends 'files_base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+.wider-card {
+    width: 100%;
+    max-width: 1000px; /* Prevent cards from becoming too wide */
+    margin: auto;
+
+/* Ensure images scale down on smaller devices */
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+}
+</style>
+
+<!-- Home page specific content here -->
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <!-- Video Resource Table -->
+        <div class="card my-4 wider-card">
+            <div class="table-responsive">
+                <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                    {% if video_resources %}
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Video Information</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for video in video_resources %}
+                        <tr>
+                            <td style="width: 20%">
+                                <a href="{{ video.video_file.url }}?menschen_id={{ video.id }}" target="_blank">
+                                    <!-- Assuming an image representation exists for each video file -->
+                                    <img src="{% static 'img/german_flag.png' %}" class="img-fluid rounded" alt="Video File" style="width: 100%;">
+                                </a>
+                            </td>
+                            <td>
+                                <p>
+                                    <a href="{{ video.video_file.url }}?menschen_id={{ video.id }}" target="_blank">{{ video.video }}</a>
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% else %}
+                    <P>No details found for this resource.</P>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    <br><br>
+    </div>
+    <br><br>
+</main>
+
+{% endblock %}

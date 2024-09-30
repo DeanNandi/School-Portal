@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% load static %} <!-- Load static to use static files -->
+
+{% load humanize %}
+
+{% block content %}
+<style>
+    .wider-card {
+        margin: 0 auto; /* Center the card horizontally */
+        padding: 15px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Optional: Adds some depth */
+        transition: 0.3s; /* Optional: Adds a transition effect on hover */
+        max-width: 1200px; /* Prevent cards from becoming too wide */
+        width: 100%;
+    }
+    .container {
+        max-width: 100%; /* Maximum width of the container */
+        margin: auto; /* Centers the container */
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #665454;
+        color: white;
+    }
+    button {
+        display: block;
+        width: auto; /* Adjust based on preference */
+        padding: 10px;
+        margin-top: 20px; /* Add some space above the button */
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    @media (max-width: 768px) {
+        .wider-card, .table-responsive {
+            padding: 0;
+        }
+        .table-responsive {
+            overflow-x: auto; /* Enable horizontal scrolling on small devices */
+        }
+    }
+</style>
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        {% if candidate %}
+            <div class="card my-4 wider-card">
+                <div class="container overflow-auto"><br>
+                    <!-- Candidate Details Table -->
+                    <div class="card-header">Payments Made</div>
+                    <div><br>
+                        <!-- Update the form with a button for PDF download -->
+                    <form action="" method="get">
+                        <button type="submit" name="download" value="pdf" class="btn sm btn-primary">Download Payments (PDF)</button>
+                    </form>
+
+                    </div>
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Date of Payment</th>
+                                <th style="text-align: center;">Receipt Number</th>
+                                <th style="text-align: center;">Amount Paid</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td style="text-align: center;">{{ payment.date_of_payment }}</td>
+                                <td style="text-align: center;">{{ payment.receipt_number }}</td>
+                                <td style="text-align: center;">{{ payment.amount_paid|intcomma }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Balance -->
+            <div class="card my-4 wider-card">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Total Paid</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="text-align: center;">{{ total_paid|intcomma }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>    <br><br>
+        {% else %}
+            <p>User details not found.</p>
+        {% endif %}
+    </div>
+
+</main><!-- End #main -->
+{% endblock %}

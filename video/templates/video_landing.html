@@ -1,0 +1,61 @@
+{% extends 'files_base.html' %}
+{% block content %}
+<style>
+    .wider-card {
+        width: 100%; /* Cards will now fill the column */
+        height: 200px; /* Adjust the height as desired */
+        font-size: 1.2rem; /* Increase the font size */
+    }
+    .card-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .card-content {
+        text-align: center;
+    }
+</style>
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="card p-3">
+            <div class="card-header">Download or View these video resources</div>
+            <div class="container">
+                <div class="row">
+
+                    <!-- Card 1 -->
+                    <div class="col-md-6">
+                        <div class="card my-3 wider-card card-center">
+                            <div class="card-content">
+                                <h3>Video menschen : A1</h3>
+                                <a href="{% url 'video-menschen' %}?class_level=A1" style="display: block;">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="col-md-6">
+                        <div class="card my-3 wider-card card-center">
+                            <div class="card-content">
+                                <h3>Video menschen : A2</h3>
+                                <a href="{% url 'video-menschen' %}?class_level=A2" style="display: block;">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 1 -->
+                    <div class="col-md-6">
+                        <div class="card my-3 wider-card card-center">
+                            <div class="card-content">
+                                <h3>Video menschen : B1</h3>
+                                <a href="{% url 'video-menschen' %}?class_level=B1" style="display: block;">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <br><br>
+    </div>
+</main>
+{% endblock %}

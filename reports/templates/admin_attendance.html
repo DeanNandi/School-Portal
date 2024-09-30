@@ -1,0 +1,61 @@
+{% extends 'report_base.html' %}
+
+{% block content %}
+<style>
+  .wider-card {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+  }
+
+  .card-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .card-title {
+    margin-bottom: 0;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .table-container {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+</style>
+
+<main id="main">
+  <div class="container">
+    <div class="card my-4 wider-card">
+      <div class="card-header">
+        <h2 class="card-title text-center">Attendance Records</h2>
+      </div>
+      <div class="card-body">
+        <p class="text-center">These are attendance records, showing who has added records for each date:</p>
+        <div class="table-container">
+          <table id="example1" class="table table-striped" style="width:100%">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Added by</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for date, usernames in organized_data.items %}
+              <tr>
+                <td>{{ date|date:"F d, Y" }}</td>
+                <td>{{ usernames|join:", " }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

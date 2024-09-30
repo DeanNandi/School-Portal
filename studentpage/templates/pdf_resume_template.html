@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ candidate.First_Name }} {{ candidate.Last_Name }} - Resume</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 20px;
+            color: #0b3484;
+            border-bottom: 2px solid #0b3484;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .experience h3, .education h3 {
+            color: #333;
+            font-size: 18px;
+            margin: 10px 0 5px 0;
+        }
+        .experience h4, .education h4 {
+            color: #555;
+            font-size: 16px;
+            margin: 0 0 5px 0;
+        }
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% if candidate.photo %}
+            <img src="{{ candidate.photo.url }}" alt="Profile Photo">
+        {% endif %}
+        <h1>{{ candidate.First_Name }} {{ candidate.Last_Name }}</h1>
+        <p>{{ candidate.email_address }} • {{ candidate.phone_number }}</p>
+        <p>{{ candidate.Street_Address }}</p>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Summary</h2>
+        <p>{{ resume.summary }}</p>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Experience</h2>
+        {% for company in resume.company %}
+            <div class="experience">
+                <h3>{{ company }}</h3>
+                <h4>{{ resume.role|get_item:forloop.counter0 }} <span>{{ resume.work_tenure|get_item:forloop.counter0 }}</span></h4>
+                <ul>
+                    {% for responsibility in resume.responsibilities|get_item:forloop.counter0|split_lines %}
+                        <li>{{ responsibility }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Education</h2>
+        {% for school in resume.school %}
+            <div class="education">
+                <h3>{{ school }}</h3>
+                <h4>{{ resume.qualification|get_item:forloop.counter0 }} <span>{{ resume.education_tenure|get_item:forloop.counter0 }}</span></h4>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Certifications</h2>
+        <ul>
+            {% for certification in resume.certifications %}
+                <li>{{ certification }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Skills</h2>
+        <ul>
+            {% for skill in resume.skills %}
+                <li>{{ skill }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Languages</h2>
+        <ul>
+            {% for language in resume.languages %}
+                <li>{{ language }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Interests and Hobbies</h2>
+        <ul>
+            {% for hobby in resume.hobbies %}
+                <li>{{ hobby }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">References</h2>
+        {% for name in resume.reference_names %}
+            <p>
+                <strong>{{ name }}</strong> from {{ resume.reference_companies|get_item:forloop.counter0 }} -
+                Contact: {{ resume.reference_contacts|get_item:forloop.counter0 }}
+            </p>
+        {% endfor %}
+    </div>
+</body>
+</html>

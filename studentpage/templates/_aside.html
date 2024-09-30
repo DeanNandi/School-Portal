@@ -1,0 +1,80 @@
+{% load static %}
+<!-- files_aside.html -->
+<!-- ======= Mobile nav toggle button ======= -->
+<i class="bi bi-list mobile-nav-toggle d-xl-none"></i>
+<!-- ======= Header ======= -->
+<header id="header">
+    <div class="d-flex flex-column">
+        <div class="profile">
+            {% if candidate.photo %}
+                <img src="{{ candidate.photo.url }}" alt="" class="img-fluid rounded-circle">
+            {% else %}
+                <img src="{% static 'img/german_flag.png' %}" alt="" class="img-fluid rounded-circle">
+            {% endif %}
+            <h1 class="text-light"><a href="{% url 'home' %}">{{ candidate.First_Name }} {{ candidate.Last_Name }}</a></h1>
+            <br>
+
+
+            <nav id="navbar" class="nav-menu navbar">
+                <ul>
+                            {% if candidate %}
+                    <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <a href="{% url 'home' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                            <i class="bx bx-home"></i> <span>Home Page</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'upload_documents' %}active{% endif %}">
+                        <a href="{% url 'upload_documents' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'upload_documents' %}active{% endif %}">
+                            <i class="bx bx-id-card"></i> <span>My Details</span>
+                        </a>
+                    </li>
+                    <!-- Updated Downloads Center link with active state check for multiple URLs -->
+                    <li class="{% if request.resolver_match.url_name == 'download-center' %}active{% endif %}">
+                        <a href="{% url 'download-center' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'menschen' %}active{% endif %}">
+                            <i class="bx bx-cloud-download"></i> <span>Download Center</span>
+
+                        </a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'student_exam_result' %}active{% endif %}">
+                        <a href="{% url 'student_exam_result' candidate.id %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'student_exam_result' %}active{% endif %}">
+                            <i class="bx bxs-report"></i> <span>Coursework Marks</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'attendance_details' %}active{% endif %}">
+                        <a href="{% url 'attendance_details' candidate.id %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'attendance_details' %}active{% endif %}">
+                            <i class="bx bx-calendar-check"></i> <span>Attendance</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'unique_payment' %}active{% endif %}">
+                        <a href="{% url 'unique_payment' candidate.id %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'unique_payment' %}active{% endif %}">
+                            <i class="bx bx-credit-card"></i> <span>Payment History</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'school_fee' %}active{% endif %}">
+                        <a href="{% url 'school_fee' candidate.id %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'school_fee' %}active{% endif %}">
+                            <i class="bx bx-calculator"></i> <span>Fee Structure</span>
+                        </a>
+                    </li>
+<li class="{% if request.resolver_match.url_name == 'manage_resume' %}active{% endif %}">
+    <a href="{% url 'manage_resume' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'manage_resume' %}active{% endif %}">
+        <i class="bx bxs-file-doc"></i> <span>Manage Resume</span>
+    </a>
+</li>
+
+                    <li><a href="/logout" class="nav-link scrollto">
+                        <i class="bx bx-log-out"></i> <span>Log-Out</span></a>
+                    </li>
+                                                {% else %}
+
+
+                    <li><a href="/logout" class="nav-link scrollto">
+                        <i class="bx bx-log-out"></i> <span>Log-Out</span></a>
+                    </li>
+                </ul>
+
+            </nav><!-- .nav-menu -->
+                {% include "_footer.html" %}
+        </div>
+    </div>
+                {% endif %}
+</header><!-- End Header -->

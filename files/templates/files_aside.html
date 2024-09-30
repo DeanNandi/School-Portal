@@ -1,0 +1,74 @@
+{% load static %}
+<!-- files_aside.html -->
+
+<!-- ======= Mobile nav toggle button ======= -->
+<i class="bi bi-list mobile-nav-toggle d-xl-none"></i>
+<!-- ======= Header ======= -->
+<header id="header">
+    <div class="d-flex flex-column">
+        <div class="profile">
+      <div class="profile">
+        <div class="social-links mt-3 text-center">
+           <br>
+            <h1 class="text-light">Download Center</h1>
+                  <a href="https://www.instagram.com/ag_german_institute"target="_blank">
+        <i class="bi bi-instagram" ></i>
+      </a>
+      <a href="https://www.facebook.com/AG German Institute" target="_blank">
+        <i class="bi bi-facebook"></i>
+      </a>
+      <a href="https://wa.me/254110853892" target="_blank">
+        <i class="bi bi-whatsapp" ></i>
+      </a>
+      <a href="https://www.x.com/AgGerman254"target="_blank">
+        <i class="bi bi-twitter-x"></i> <!-- Placeholder for X icon -->
+      </a>
+            <a href="https://www.tiktok.com/@ag_german_institute" target="_blank">
+        <i class="bi bi-tiktok"></i> <!-- Icon for TikTok -->
+      </a>
+        </div>
+            <!--            <img src="{% static 'img/books2.jpg' %}" alt="" class="img-fluid rounded-circle">-->
+
+            <br>
+
+            <nav id="navbar" class="nav-menu navbar">
+                <ul>
+                    {% if user.is_authenticated %}
+<li class="{% if request.resolver_match.url_name == 'menschen' or request.resolver_match.url_name == 'practice-materials' or request.resolver_match.url_name == 'download-center' or request.resolver_match.url_name == 'grammar' %}active{% endif %}">
+    <a href="{% url 'download-center' %}" class="nav-link scrollto">
+        <i class="bi bi-journal-richtext"></i> <span>Reading Materials</span>
+    </a>
+</li>
+
+                    <li class="{% if request.resolver_match.url_name == 'audio-menschen' or request.resolver_match.url_name == 'audio-grammar' or request.resolver_match.url_name == 'download-audio' %}active{% endif %}">
+                        <a href="{% url 'download-audio' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'audio-menschen' %}active{% endif %}">
+                            <i class="bi bi-soundwave"></i> <span>AudioBooks</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'download-video' or request.resolver_match.url_name == 'video-menschen'  %}active{% endif %}">
+                        <a href="{% url 'download-video' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'video-menschen' %}active{% endif %}">
+                            <i class="bi bi-camera-reels"></i> <span>Video Clips</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/">
+                        <i class="bx bx-home"></i> <span>Home Page</span>
+
+                        </a>
+                    </li>
+                    <li><a href="/logout" class="nav-link scrollto">
+                        <i class="bx bx-log-out"></i> <span>Log-Out</span></a>
+                    </li>
+                                                {% else %}
+                    <li><a href="/logout" class="nav-link scrollto">
+                        <i class="bx bx-log-out"></i> <span>Log-Out</span></a>
+                    </li>
+                </ul>
+
+            </nav><!-- .nav-menu -->
+                {% include "_footer.html" %}
+        </div>
+    </div>
+    </div>
+                {% endif %}
+</header><!-- End Header -->

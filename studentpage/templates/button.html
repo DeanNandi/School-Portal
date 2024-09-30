@@ -1,0 +1,6 @@
+{% if user.is_staff %}
+    <form action="{% url 'import-candidates' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Import/Update Candidates</button>
+    </form>
+{% endif %}

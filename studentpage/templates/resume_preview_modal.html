@@ -1,0 +1,143 @@
+<!-- Modal -->
+
+<style>
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100% - 1rem);
+    }
+
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .resume-preview {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .resume-preview header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .resume-preview h1 {
+        font-size: 28px;
+        margin-bottom: 5px;
+    }
+
+    .resume-preview h2 {
+        font-size: 20px;
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 5px;
+        margin-top: 20px;
+    }
+
+    .resume-preview section {
+        margin-bottom: 20px;
+    }
+
+    .resume-preview .experience-item, .resume-preview .education-item {
+        margin-bottom: 15px;
+    }
+
+    .resume-preview .experience-item h3, .resume-preview .education-item h3 {
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+
+    .resume-preview .experience-item p, .resume-preview .education-item p {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .resume-preview ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .resume-preview ul li {
+        margin-bottom: 5px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+    }
+</style>
+
+
+<div class="modal fade" id="resumePreviewModal" tabindex="-1" aria-labelledby="resumePreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resumePreviewModalLabel">Resume Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="resumePreview" class="resume-preview">
+                    <header>
+                        <img id="previewPhoto" src="" alt="Candidate Photo"
+                             style="max-width: 150px; max-height: 150px; border-radius: 50%;">
+                        <h1 id="previewName"></h1>
+                        <p id="previewJobTitle">Software Developer</p>
+                        <p id="previewContact"></p>
+                    </header>
+
+                    <section id="previewSummary">
+                        <h2>Professional Summary</h2>
+                        <p></p>
+                    </section>
+
+                    <section id="previewExperience">
+                        <h2>Experience</h2>
+                        <!-- Work experiences will be inserted here -->
+                    </section>
+
+                    <section id="previewEducation">
+                        <h2>Education</h2>
+                        <!-- Education details will be inserted here -->
+                    </section>
+
+                    <section id="previewCertifications">
+                        <h2>Certifications</h2>
+                        <!-- Certifications will be inserted here -->
+                    </section>
+
+                    <section id="previewSkills">
+                        <h2>Skills</h2>
+                        <!-- Skills will be inserted here -->
+                    </section>
+
+                    <section id="previewLanguages">
+                        <h2>Languages</h2>
+                        <!-- Languages will be inserted here -->
+                    </section>
+
+                    <section id="previewInterests">
+                        <h2>Interests and Hobbies</h2>
+                        <!-- Interests will be inserted here -->
+                    </section>
+
+                    <section id="previewReferences">
+                        <h2>References</h2>
+                        <!-- References will be inserted here -->
+                    </section>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Submit Resume</button>
+            </div>
+        </div>
+    </div>
+</div>
+

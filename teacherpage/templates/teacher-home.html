@@ -1,0 +1,137 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    .cohort-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .cohort-table th, .cohort-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .cohort-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .cohort-table tr:last-child td {
+        border-bottom: none;
+    }
+    .cohort-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .cohort-info p {
+        margin-bottom: 10px;
+    }
+    .cohort-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    .updates-section {
+        margin-bottom: 30px;
+    }
+    .alert {
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            {% if cohorts %}
+            <!-- Updates Section -->
+            <div class="updates-section">
+                {% for update in updates %}
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="bi {{ update.icon }} me-2"></i>
+                    <strong>{{ update.title }}</strong> - {{ update.description }}
+                    {% if update.link %}
+                        <a href="{{ update.link }}" class="alert-link">Learn More</a>
+                    {% endif %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-graduation-cap"></i> Ongoing Classes</h3>
+                <div class="cohort-info">
+                    <p class="text-center mb-1"><i class="fas fa-info-circle"></i> Classes assigned to you are listed below.</p>
+                </div>
+
+                {% if cohorts %}
+                    <div class="table-responsive">
+                        <table class="cohort-table">
+                            <thead>
+                                <tr>
+                                    <th>Class Number</th>
+                                    <th>Class Intake</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cohort in cohorts %}
+                                    <tr>
+                                        <td>{{ cohort.course_class_no }}</td>
+                                        <td>{{ cohort.course_intake }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">This site is reserved for teachers. Go to Students' Portal? <br>
+                    <a href="{% url 'login' %}">Click here</a></p>
+                {% endif %}
+            </div>
+
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-map-marker-alt"></i> Assigned Location</h3>
+                <div class="cohort-info">
+                    <p class="text-center mb-1"><i class="fas fa-info-circle"></i> Your assigned teaching location is shown below.</p>
+                </div>
+
+                {% if teacher %}
+                    <div class="table-responsive">
+                        <table class="cohort-table">
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: center;"><strong>{{ teacher.course_location }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">Nothing to Display.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

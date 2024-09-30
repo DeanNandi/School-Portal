@@ -1,0 +1,258 @@
+{% extends 'report_base.html' %}
+{% load student_exam_extras %}
+{% load static %}
+{% load my_filters %}
+
+{% block content %}
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container">
+            <!-- Filter Section -->
+        <div class="filter-section m-3">
+            <h5>Filter Records</h5>
+            <div class="filter-categories">
+                <div class="filter-category">
+                    <h6>Status</h6>
+                    <div class="filter-tags" id="status-filters">
+                        <span class="filter-tag {% if active_filters.status == 'passed' %}active{% endif %}"
+                              data-filter="status" data-value="passed">
+                            Passed
+                            {% if active_filters.status == 'passed' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% endif %}
+                        </span>
+                        <span class="filter-tag {% if active_filters.status == 'failed' %}active{% endif %}"
+                              data-filter="status" data-value="failed">
+                            Failed
+                            {% if active_filters.status == 'failed' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% endif %}
+                        </span>
+                        <span class="filter-tag {% if active_filters.status == 'admin_decision' %}active{% endif %}"
+                              data-filter="status" data-value="admin_decision">
+                            Admin Decision
+                            {% if active_filters.status == 'admin_decision' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% endif %}
+                        </span>
+
+                    </div>
+                                <!-- Active Filters Display -->
+        <div id="active-filters-display" class="alert alert-info m-3" {% if not active_filters %}style="display: none;"{% endif %}>
+            <a href="{% url 'view_student_exams' examination.id %}?course_class_no={{ examination.class_information.course_class_no }}" class="btn btn-outline-secondary btn-sm mt-2">Clear All Filters 🔄</a>
+        </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="card my-4 wider-card">
+        <div class="card-header">
+            <h2 class="text-center mb-0">
+                {% if examination.examination_name %}
+                {{ examination.examination_name }}
+                {% else %}
+                {{ examination.class_level }}
+                {% endif %}
+            </h2>
+            <p class="text-center mb-0">
+                {{ examination.class_information.course_class_no }} - {{ examination.class_information.course_intake }}
+            </p>
+            <p class="text-center mb-0">
+                 Teacher(s): {{ added_by }}
+            </p>
+        </div>
+        <br>
+
+        <div class="container overflow-auto">
+            <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                {% if exams %}
+                <thead>
+                <tr>
+                    <th style="text-align: center;">STUDENT</th>
+                    <th style="text-align: center;">SPEAKING</th>
+                    <th style="text-align: center;">LISTENING</th>
+                    <th style="text-align: center;">READING</th>
+                    <th style="text-align: center;">WRITING</th>
+                    <th style="text-align: center;">TOTAL SCORE</th>
+                    <th style="text-align: center;">RECOMMENDATIONS</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for student_exam in exams %}
+                <tr>
+                    <td style="text-align: center;">{{ student_exam.student.First_Name }} {{ student_exam.student.Last_Name }}</td>
+    <td style="text-align: center;">
+        {% if student_exam.speaking_display %}
+        {% with percentage=student_exam.speaking_display|percentage:student_exam.speaking_total %}
+        <span style="color: {% if percentage >= 60 %}green{% else %}red{% endif %};">
+                        {{ percentage|floatformat:2 }}%
+                    </span>
+        {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {% if student_exam.listening_display %}
+        {% with percentage=student_exam.listening_display|percentage:student_exam.listening_total %}
+        <span style="color: {% if percentage >= 60 %}green{% else %}red{% endif %};">
+                        {{ percentage|floatformat:2 }}%
+                    </span>
+        {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {% if student_exam.reading_display %}
+        {% with percentage=student_exam.reading_display|percentage:student_exam.reading_total %}
+        <span style="color: {% if percentage >= 60 %}green{% else %}red{% endif %};">
+                        {{ percentage|floatformat:2 }}%
+                    </span>
+        {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {% if student_exam.writing_display %}
+        {% with percentage=student_exam.writing_display|percentage:student_exam.writing_total %}
+        <span style="color: {% if percentage >= 60 %}green{% else %}red{% endif %};">
+                        {{ percentage|floatformat:2 }}%
+                    </span>
+        {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {% if student_exam.percentage_score %}
+            {% with speaking_pass=student_exam.speaking_display|percentage:student_exam.speaking_total|gte:60 %}
+            {% with listening_pass=student_exam.listening_display|percentage:student_exam.listening_total|gte:60 %}
+            {% with reading_pass=student_exam.reading_display|percentage:student_exam.reading_total|gte:60 %}
+            {% with writing_pass=student_exam.writing_display|percentage:student_exam.writing_total|gte:60 %}
+                {% if student_exam.speaking_display or student_exam.listening_display or student_exam.reading_display or student_exam.writing_display %}
+                    {% all_true speaking_pass listening_pass reading_pass writing_pass as all_pass %}
+                    <span style="color: {% if all_pass %}green{% else %}red{% endif %};">
+                        {{ student_exam.percentage_score }}
+                    </span>
+                    {% if not all_pass %}
+                        <br>
+                        <small style="color: red;">
+                            Failed:
+                            {% if student_exam.speaking_display and not speaking_pass %}Speaking {% endif %}
+                            {% if student_exam.listening_display and not listening_pass %}Listening {% endif %}
+                            {% if student_exam.reading_display and not reading_pass %}Reading {% endif %}
+                            {% if student_exam.writing_display and not writing_pass %}Writing{% endif %}
+                        </small>
+                    {% endif %}
+                {% else %}
+                    <span style="color: {% if student_exam.percentage_score_as_decimal >= 0.6 %}green{% else %}red{% endif %};">
+                        {{ student_exam.percentage_score }}
+                    </span>
+                    {% if student_exam.percentage_score_as_decimal < 0.6 %}
+                        <br>
+                        <small style="color: red;">
+                            Failed: Overall average below 60%
+                        </small>
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+                    <td>
+                        <div class="recommendation-content">
+                            {% if student_exam.speaking_display or student_exam.listening_display or student_exam.reading_display or student_exam.writing_display %}
+                                {% with speaking_pass=student_exam.speaking_display|percentage:student_exam.speaking_total|gte:60 %}
+                                {% with listening_pass=student_exam.listening_display|percentage:student_exam.listening_total|gte:60 %}
+                                {% with reading_pass=student_exam.reading_display|percentage:student_exam.reading_total|gte:60 %}
+                                {% with writing_pass=student_exam.writing_display|percentage:student_exam.writing_total|gte:60 %}
+                                    {% if speaking_pass and listening_pass and reading_pass and writing_pass %}
+                                        <p style="color: green;">Passed</p>
+                                    {% else %}
+                                        {% include "recommendation_content.html" %}
+                                    {% endif %}
+                                {% endwith %}
+                                {% endwith %}
+                                {% endwith %}
+                                {% endwith %}
+                            {% else %}
+                                {% if student_exam.percentage_score_as_decimal >= 0.6 %}
+                                    <p style="color: green;">Passed</p>
+                                {% else %}
+                                    {% include "recommendation_content.html" %}
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+                </tbody>
+                {% else %}
+                <p style="text-align: center;">No students found for this assessment.</p>
+                {% endif %}
+            </table>
+        </div>
+            {% if debug_info %}
+    <div class="card-footer">
+        <h4>Debug Information</h4>
+        <pre>{{ debug_info|pprint }}</pre>
+    </div>
+    {% endif %}
+    </div>
+
+    <!-- Details Modals -->
+    {% for student_exam in exams %}
+    {% if student_exam.speaking_display or student_exam.listening_display or student_exam.reading_display or student_exam.writing_display %}
+        {% with speaking_pass=student_exam.speaking_display|percentage:student_exam.speaking_total|gte:60 %}
+        {% with listening_pass=student_exam.listening_display|percentage:student_exam.listening_total|gte:60 %}
+        {% with reading_pass=student_exam.reading_display|percentage:student_exam.reading_total|gte:60 %}
+        {% with writing_pass=student_exam.writing_display|percentage:student_exam.writing_total|gte:60 %}
+            {% if not speaking_pass or not listening_pass or not reading_pass or not writing_pass %}
+                {% include "reports_details_modal.html" %}
+            {% endif %}
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+    {% else %}
+        {% if student_exam.percentage_score_as_decimal < 0.6 %}
+            {% include "reports_details_modal.html" %}
+        {% endif %}
+    {% endif %}
+    {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterTags = document.querySelectorAll('.filter-tag');
+    const activeFiltersDisplay = document.getElementById('active-filters-display');
+    const activeFiltersContainer = document.getElementById('active-filters');
+
+    filterTags.forEach(tag => {
+        tag.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            const value = this.dataset.value;
+            const url = new URL(window.location);
+            url.searchParams.set(filter, value);
+            window.location = url;
+        });
+    });
+
+    if (activeFiltersContainer.children.length > 0) {
+        activeFiltersDisplay.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends 'report_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-color: #3a5a78;
+        --background-color: #f5f7fa;
+        --card-background: #ffffff;
+        --text-color: #333333;
+        --hover-color: #4a6a88;
+        --heading-color: #2c3e50;
+        --present-color: #4caf50;
+        --absent-color: #f44336;
+        --no-record-color: #9e9e9e;
+    }
+
+    .attendance-container {
+        background-color: var(--background-color);
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .main-heading {
+        color: var(--heading-color);
+        font-size: 2em;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .main-heading::after {
+        content: '';
+        display: block;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary-color);
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .student-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .student-card {
+        background-color: var(--card-background);
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .student-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .student-card-header {
+        background-color: var(--primary-color);
+        color: var(--card-background);
+        padding: 10px 15px;
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    .student-card-body {
+        padding: 15px;
+    }
+
+    .attendance-summary {
+        text-align: center;
+    }
+
+    .attendance-percentage {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    .attendance-details {
+        margin-top: 5px;
+        font-size: 0.8em;
+        color: var(--text-color);
+    }
+
+    .attendance-bar {
+        height: 8px;
+        background-color: var(--absent-color);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .attendance-bar-fill {
+        height: 100%;
+        background-color: var(--present-color);
+    }
+
+    /* Modified styles for search box */
+    .search-box {
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .search-box input {
+        width: 200px;  /* Adjust this value to make the search bar shorter */
+        padding: 8px;
+        border: 2px solid var(--primary-color);
+        border-radius: 5px;
+        font-size: 0.9em;
+    }
+
+    .summary-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .total-classes {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    .total-classes-number {
+        font-size: 1.5em;
+        background-color: white;
+        color: var(--primary-color);
+        padding: 5px 10px;
+        border-radius: 50%;
+        margin-left: 10px;
+    }
+
+    .student-card {
+        position: relative;
+    }
+
+    .attendance-ratio {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 3px 6px;
+        border-radius: 10px;
+        font-size: 0.8em;
+    }
+
+    .load-more-button {
+        display: block;
+        width: 200px;
+        margin: 20px auto;
+        padding: 10px;
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .load-more-button:hover {
+        background-color: var(--hover-color);
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+
+<main id="main">
+    <div class="attendance-container">
+        <h1 class="main-heading">Attendance Summary</h1>
+
+        <div class="summary-header">
+            <div class="total-classes">
+                Total Classes: <span class="total-classes-number">{{ total_classes }}</span>
+            </div>
+            <div class="course-info">
+                {{ course_intake }} {% if course_location %} - {{ course_location }}{% endif %}
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="studentSearch" placeholder="Search for a student...">
+        </div>
+
+        <div class="student-cards-grid" id="studentCardsGrid">
+            {% for data in attendance_data %}
+            <div class="student-card {% if forloop.counter > 25 %}hidden{% endif %}">
+                <div class="student-card-header">
+                    {{ data.candidate }}
+                </div>
+                <div class="attendance-ratio">
+                    {{ data.present_count }}/{{ total_classes }}
+                </div>
+                <div class="student-card-body">
+                    <div class="attendance-summary">
+                        <div class="attendance-percentage">
+                            {{ data.attendance_percentage|floatformat:1 }}%
+                        </div>
+                        <div class="attendance-details">
+                            Present: {{ data.present_count }} | Absent: {{ data.absent_count }}
+                        </div>
+                        <div class="attendance-bar">
+                            <div class="attendance-bar-fill" style="width: {{ data.attendance_percentage }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if attendance_data|length > 25 %}
+        <button id="loadMoreButton" class="load-more-button">Load More</button>
+        {% endif %}
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const studentSearch = document.getElementById('studentSearch');
+        const cards = document.querySelectorAll('.student-card');
+        const loadMoreButton = document.getElementById('loadMoreButton');
+        let visibleCards = 25;
+
+        studentSearch.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            cards.forEach(card => {
+                const studentName = card.querySelector('.student-card-header').textContent.toLowerCase();
+                if (studentName.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        if (loadMoreButton) {
+            loadMoreButton.addEventListener('click', function() {
+                for (let i = visibleCards; i < visibleCards + 25 && i < cards.length; i++) {
+                    cards[i].classList.remove('hidden');
+                }
+                visibleCards += 25;
+                if (visibleCards >= cards.length) {
+                    loadMoreButton.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

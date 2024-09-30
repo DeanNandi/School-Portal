@@ -1,0 +1,238 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+.btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.btn i {
+    margin-right: 5px;
+}
+
+.btn-save {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.btn-save:hover {
+    background-color: #d0d0d0;
+}
+
+.btn-delete {
+    background-color: #e9ecef;
+    color: #666;
+}
+
+.btn-delete:hover {
+    background-color: #a9caeb;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .btn {
+        margin-bottom: 5px;
+    }
+}
+    .errorlist {
+        color: red;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    .absent-reason-select {
+        display: none;
+    }
+
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .attendance-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .attendance-table th, .attendance-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .attendance-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .attendance-table tr:last-child td {
+        border-bottom: none;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+    .attendance-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .attendance-info h5, .attendance-info p {
+        margin-bottom: 10px;
+    }
+    .attendance-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    @media (max-width: 768px) {
+        .attendance-table, .attendance-table tbody, .attendance-table tr, .attendance-table td {
+            display: block;
+            width: 100%;
+        }
+        .attendance-table tr {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .attendance-table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+        }
+        .attendance-table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 15px;
+            width: 50%;
+            padding-right: 15px;
+            font-weight: bold;
+            text-align: left;
+        }
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-edit"></i> Records added on {{ formatted_date }}</h3>
+                <div class="attendance-info">
+                    <p class="text-center mb-1"><i class="fas fa-info-circle"></i>
+                        Modify the attendance records for each student below.
+                        <br><br>
+                        <small><i class="fas fa-info-circle"></i> Students cannot be marked both present and absent.</small>
+                    </p>
+                </div>
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="table-responsive">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Present</th>
+                                <th>Absent Reason</th>
+                                <th>Modify or Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record, form in attendance_forms %}
+                            <tr>
+                                <form method="post" action="">
+                                {% csrf_token %}
+                                <td data-label="Student Name">{{ record.candidate.First_Name }} {{ record.candidate.Last_Name }}</td>
+                                <td data-label="Present">
+                                    {{ form.present }}
+                                    {{ form.present.errors }}
+                                </td>
+                                <td data-label="Absent Reason">
+                                    {{ form.absent_reason }}
+                                    {{ form.absent_reason.errors }}
+                                </td>
+                                    <td data-label="Actions" class="action-buttons">
+                                        <input type="hidden" name="record_id" value="{{ record.id }}">
+                                        <button type="submit" class="btn btn-save" title="Modify">
+                                            <i class="fas fa-save"></i> Save
+                                        </button>
+                                        <a href="{% url 'delete_attendance' record.id %}" class="btn btn-delete" title="Remove">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </a>
+                                    </td>
+                            </form>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const presentCheckboxes = document.querySelectorAll('input[name$="-present"]');
+    presentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const absentReasonSelect = this.closest('tr').querySelector('select[name$="-absent_reason"]');
+            if (this.checked) {
+                console.log('Checkbox checked, disabling absent reason');
+                absentReasonSelect.value = '';
+                absentReasonSelect.disabled = true;
+            } else {
+                console.log('Checkbox unchecked, enabling absent reason');
+                absentReasonSelect.disabled = false;
+            }
+        });
+        // Trigger the change event on page load to set initial state
+        checkbox.dispatchEvent(new Event('change'));
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+<!-- update_device.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Update Device</h2>
+    <p>Current device MAC address: {{ current_mac|default:"Not set" }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Update to Current Device</button>
+    </form>
+    <a href="{% url 'remove_device' %}" class="btn btn-danger">Remove Device Association</a>
+</div>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .exam-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .exam-table th, .exam-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .exam-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .exam-table tr:last-child td {
+        border-bottom: none;
+    }
+    .exam-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .exam-info h5, .exam-info p {
+        margin-bottom: 10px;
+    }
+    .exam-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+    .btn-success {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+    }
+</style>
+<!--Date and time-->
+<style>
+    .date-input-container {
+        position: relative;
+        display: inline-block;
+    }
+    .scheduled-date {
+        border: none;
+        border-bottom: 1px solid #ccc;
+        padding: 5px 0;
+        font-size: 14px;
+        background-color: transparent;
+        transition: border-color 0.3s;
+    }
+    .scheduled-date:focus {
+        outline: none;
+        border-bottom-color: #007bff;
+    }
+    .scheduled-date::-webkit-calendar-picker-indicator {
+        color: rgba(0, 0, 0, 0);
+        opacity: 1;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 24 24"><path fill="%23007bff" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>') no-repeat;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    .save-status {
+        position: absolute;
+        bottom: -20px;
+        left: 0;
+        font-size: 12px;
+        transition: opacity 0.3s;
+        opacity: 0;
+    }
+    .save-status.show {
+        opacity: 1;
+    }
+</style>
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-file-alt"></i> Assessment Information</h3>
+                {% if exam_data %}
+                    {% with first_exam=exam_data.0.exam %}
+                        <div class="exam-info">
+                            <h5 class="text-center mb-3">
+                                <i class="fas fa-graduation-cap"></i>
+                                {{ first_exam.class_information.course_class_no }} - {{ first_exam.class_information.course_intake }}
+                            </h5>
+                            <p class="text-center">
+                                <i class="fas fa-map-marker-alt"></i> Class Location: {{ first_exam.class_information.teacher.course_location }}
+                            </p>
+                            <p class="text-center">
+                                <i class="fas fa-clock"></i> Time: {{ time_filter|title }}
+                            </p>
+                        </div>
+                    {% endwith %}
+                <div class="exam-info">
+                    <small class="text-center mb-1"><i class="fas fa-info-circle"></i> Record Assessment marks for
+                        students or Create custom Assessment for the class then record.</small>
+                </div>
+
+                <div class="button-container">
+                    <a href="{% url 'create-examination' %}" class="btn btn-success">Create a custom Assessment</a>
+                </div>
+                    <div class="table-responsive">
+                        <table class="exam-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Assessment Name</th>
+                                <th style="text-align: center;">Date Scheduled</th>
+                                <th style="text-align: center;">Date Entered</th>
+                                <th style="text-align: center;">Student Participation</th>
+                                <th style="text-align: center;">Average Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exam_item in exam_data %}
+                            <tr>
+                                <td style="text-align: center;">
+                                <a href="{% url 'manage_student_exams' exam_id=exam_item.exam.id %}?time_filter={{ time_filter }}&course_class_no={{ course_class_no }}">
+                                        {% if exam_item.exam.examination_name %}
+                                            {{ exam_item.exam.examination_name }}
+                                        {% else %}
+                                            {{ exam_item.exam.class_level }}
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div class="date-input-container">
+                                        <input type="date"
+                                               class="scheduled-date"
+                                               data-exam-id="{{ exam_item.exam.id }}"
+                                               value="{% if exam_item.scheduled_date %}{{ exam_item.scheduled_date|date:'Y-m-d' }}{% endif %}"
+                                               {% if not exam_item.scheduled_date %}placeholder="Schedule exam" {% endif %}>
+                                        <span class="save-status"></span>
+                                    </div>
+                                </td>
+                                <td style="text-align: center;">
+                                    {{ exam_item.exam.date_added }}
+                                </td>
+                                <td style="text-align: center;">
+                                    {{ exam_item.students_with_grades }} / {{ exam_item.total_students }}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if exam_item.average_score %}
+                                    {{ exam_item.average_score }}%
+                                    {% else %}
+                                    N/A
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">No exam information found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.scheduled-date').on('change', function() {
+        var examId = $(this).data('exam-id');
+        var scheduledDate = $(this).val();
+        var statusSpan = $(this).siblings('.save-status');
+
+        // Ensure the date is not empty
+        if (!scheduledDate) {
+            statusSpan.text('Please select a date').css('color', 'red').addClass('show').delay(2000).queue(function(next){
+                $(this).removeClass('show');
+                next();
+            });
+            return;
+        }
+
+        $.ajax({
+            url: '{% url "update_scheduled_date" %}',
+            method: 'POST',
+            data: {
+                'exam_id': examId,
+                'scheduled_date': scheduledDate,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    statusSpan.text('Saved').css('color', 'green').addClass('show').delay(2000).queue(function(next){
+                        $(this).removeClass('show');
+                        next();
+                    });
+                } else {
+                    statusSpan.text(response.message).css('color', 'red').addClass('show').delay(2000).queue(function(next){
+                        $(this).removeClass('show');
+                        next();
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                statusSpan.text('Error saving').css('color', 'red').addClass('show').delay(2000).queue(function(next){
+                    $(this).removeClass('show');
+                    next();
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

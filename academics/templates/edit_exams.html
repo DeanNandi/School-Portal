@@ -1,0 +1,140 @@
+{% extends 'teacher_base.html' %}
+
+{% block content %}
+<style>
+    .wider-card {
+        width: 100%;
+        max-width: 1000px; /* Prevent cards from becoming too wide */
+        margin: auto;
+    }
+    .table-responsive {
+        overflow-x: auto;
+    }
+    @media (max-width: 768px) {
+        .table thead {
+            display: none;
+        }
+        .table, .table tbody, .table tr, .table td {
+            display: block;
+            width: 100%;
+        }
+        .table tr {
+            margin-bottom: 15px;
+        }
+        .table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+            padding-top: 20px; /* Increase top padding */
+            padding-bottom: 20px; /* Increase bottom padding */
+            font-size: 14px; /* Adjust font size for small screens */
+        }
+        .table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 0;
+            width: 50%;
+            padding-left: 15px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .btn {
+            padding: .375rem .75rem; /* Increase button padding */
+            font-size: 14px; /* Increase button font size for easier interaction */
+        }
+    }
+    /* Apply consistent cell height across all screen sizes */
+    .table td {
+        padding-top: 20px; /* Increase top padding */
+        padding-bottom: 20px; /* Increase bottom padding */
+    }
+</style>
+<main id="main">
+    <div class="vertical-space">
+        <div class="card my-4 wider-card">
+            <div class="container overflow-auto">
+        <div class="card-header">Edit Exam Records: {{ examination.examination_name }}</div>
+                <br>
+        <form method="POST">
+            {% csrf_token %}
+            <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Score</th>
+                        <th>Missed Exam Reason</th>
+                        <th>Action</th> <!-- For deletion link -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student_exam in student_exams %}
+                        <tr>
+                            <td>{{ student_exam.student.First_Name }} {{ student_exam.student.Last_Name }}</td>
+                            <td>
+                                <input type="text" id="score_{{ student_exam.id }}" name="score_{{ student_exam.id }}" value="{{ student_exam.percentage_score }}" class="form-control">
+                            </td>
+                            <td>
+                                <select name="reason_{{ student_exam.id }}" id="reason_{{ student_exam.id }}" class="form-control">
+                                    <option value="">-- Select Reason --</option>
+                                    {% for value, display in missed_assessment_reasons_choices %}
+                                        <option value="{{ value }}" {% if student_exam.missed_exam_reason == value %} selected {% endif %}>{{ display }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                {% if student_exams %}
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                {% endif %}
+                                <!-- Link or button for deletion -->
+                                <a href="{% url 'delete_student_exam' student_exam.id %}" class="btn btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </form>
+    </div>
+        </div>
+        <br><br>
+    </div>
+
+</main>
+{% block additional_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Function to check and adjust fields based on changes
+    function adjustFieldState(changedField, relatedField) {
+        if (changedField.value) {
+            relatedField.disabled = true;
+            relatedField.value = ''; // Clears the value if something is typed or selected in the other field
+        } else {
+            relatedField.disabled = false;
+        }
+    }
+
+    // Get all score and reason select elements
+    const scoreInputs = document.querySelectorAll('input[type="text"][id^="score_"]');
+    const reasonSelects = document.querySelectorAll('select[id^="missed_exam_reason_"]');
+
+    scoreInputs.forEach(function(input) {
+        input.addEventListener('input', function() {
+            // Extract student ID from the ID of the changed field
+            const studentId = this.id.match(/score_(\d+)/)[1];
+            const relatedSelect = document.querySelector(`#missed_exam_reason_${studentId}`);
+            adjustFieldState(this, relatedSelect);
+        });
+    });
+
+    reasonSelects.forEach(function(select) {
+        select.addEventListener('change', function() {
+            // Extract student ID from the ID of the changed field
+            const studentId = this.id.match(/missed_exam_reason_(\d+)/)[1];
+            const relatedInput = document.querySelector(`#score_${studentId}`);
+            adjustFieldState(this, relatedInput);
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

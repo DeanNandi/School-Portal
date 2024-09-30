@@ -1,0 +1,371 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #f5f7fa;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .cohort-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .cohort-info h5, .cohort-info p {
+        margin-bottom: 10px;
+    }
+    .cohort-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #979984;
+        color: white;
+    }
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .btn:hover {
+        background-color: #0056b3;
+    }
+    .btn-secondary {
+        background-color: #28a745;
+    }
+    .btn-secondary:hover {
+        background-color: #218838;
+    }
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    .alert-info {
+        color: #0c5460;
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+    }
+    @media (max-width: 768px) {
+        .filter-card, .table-responsive {
+            padding: 15px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+</style>
+<!--Style for Mark present buttons-->
+<style>
+    /* Modal styles */
+    .modal-content {
+        background-color: #f8f9fa;
+        margin: 10% auto;
+        padding: 25px;
+        border: none;
+        width: 85%;
+        max-width: 500px;
+        border-radius: 12px;
+        box-shadow: 0 6px 30px rgba(0,0,0,0.2);
+        position: relative;
+    }
+    .close {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        color: #333;
+        font-size: 20px;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    .close:hover {
+        color: #000;
+    }
+    .modal h4 {
+        margin-top: 0;
+        color: #444;
+        font-size: 1.5em;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .modal p {
+        color: #555;
+        font-size: 1.1em;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    .modal-buttons {
+        text-align: center;
+    }
+    .modal-buttons button {
+        padding: 10px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1em;
+        margin: 0 10px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    #cancelBtn {
+        background-color: #e0e0e0;
+        color: #555;
+    }
+    #cancelBtn:hover {
+        background-color: #ccc;
+        transform: scale(1.05);
+    }
+    #confirmBtn {
+        background-color: #007bff;
+        color: white;
+    }
+    #confirmBtn:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    /* Button styles */
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .action-buttons .btn {
+        margin-top: 0;
+        margin-left: 10px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    #markAllPresentBtn {
+        background-color:#909e96;
+        color: white;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    #markAllPresentBtn:hover {
+        background-color: #428c62; /* A slightly darker shade for hover */
+        transform: scale(1.05);
+    }
+    #undoAllPresentBtn {
+        background-color: #adab8e;
+        color: #212529;
+        display: none;
+    }
+    #undoAllPresentBtn:hover {
+        background-color: #e0a800;
+        transform: scale(1.05);
+    }
+</style>
+
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                {% if thank_you_message %}
+                    <div class="alert alert-success">
+                        {{ thank_you_message }}
+                        <br>
+                        <a href="{% url 'classes' %}" class="btn">Make Another Submission</a>
+                    </div>
+                {% else %}
+                    <h3 class="text-center mb-4">Record Class Attendance</h3>
+
+                    <div class="cohort-info">
+                        <h5><i class="fas fa-users"></i> {{ cohort.course_class_no }} - {{ cohort.course_intake }} Cohort</h5>
+                        <p><i class="fas fa-calendar-alt"></i> Class Intake: {{ cohort.course_intake }}</p>
+
+                    </div>
+
+                    {% if selected_time %}
+                    <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
+                        <span>Showing students for time: {{ selected_time }} 😎</span>
+                        <a href="{% url 'filter_candidates' %}?cohort_id={{ cohort.id }}" class="btn btn-outline-secondary btn-sm">
+                            Change Class Time 🔄
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="table-responsive">
+                        <div class="action-buttons">
+                            <a href="{% url 'download_candidates_pdf' %}?cohort_id={{ cohort.id }}&time={{ selected_time }}" class="btn btn-secondary">Download Attendance List (PDF)</a>
+                            <div>
+                                <button type="button" id="markAllPresentBtn" class="btn sm">Mark All Present <span class="present-mark">&#10004;</span> </button>
+                                <button type="button" id="undoAllPresentBtn" class="btn sm btn-warning">Undo Mark All Present <span class="absent-mark">&#10008;</span> </button>
+                            </div>
+                        </div>
+
+                            <table>
+                                <tr>
+                                    <th>Date:</th>
+                                    <td><input type="date" name="date" required class="form-control"></td>
+                                </tr>
+                            </table>
+
+                            <table id="example1" class="table table-striped overflow-auto">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center;">Name</th>
+                                    <th style="text-align: center;">Time</th>
+                                    <th style="text-align: center;">Present</th>
+                                    <th style="text-align: center;">Absent Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for candidate in candidates %}
+                                    <tr>
+                                        <td>{{ candidate.First_Name }} {{ candidate.Last_Name }}</td>
+                                        <td>{{ candidate.Time }}</td>
+                                        <td><input type="checkbox" onchange="toggleAbsentReason(this, '{{ candidate.id }}');" name="present_{{ candidate.id }}"></td>
+                                        <td>
+                                            <select name="absent_reason_{{ candidate.id }}" id="absent_reason_{{ candidate.id }}" class="form-control">
+                                                <option value="">Select Reason</option>
+                                                {% for value, display in absent_reason_choices %}
+                                                    <option value="{{ value }}">{{ display }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Enhanced Confirmation Modal -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close"><i class="fas fa-times"></i></span>
+        <h4>Confirmation</h4>
+        <p>Are you sure you want to mark all students as present?</p>
+        <div class="modal-buttons">
+            <button id="cancelBtn">Cancel <span class="absent-mark">&#10008;</span> </button>
+            <button id="confirmBtn">Confirm <span class="present-mark">&#10004;</span> </button>
+        </div>
+    </div>
+</div>
+</main>
+
+<script>
+    function toggleAbsentReason(checkbox, candidateId) {
+        var selectElement = document.getElementById('absent_reason_' + candidateId);
+        if (checkbox.checked) {
+            selectElement.disabled = true;
+            selectElement.value = "";
+        } else {
+            selectElement.disabled = false;
+        }
+    }
+// Updated JavaScript for Mark All Present functionality with Undo
+document.addEventListener('DOMContentLoaded', function() {
+    const markAllPresentBtn = document.getElementById('markAllPresentBtn');
+    const undoAllPresentBtn = document.getElementById('undoAllPresentBtn');
+    const modal = document.getElementById('confirmModal');
+    const closeBtn = document.getElementsByClassName('close')[0];
+    const cancelBtn = document.getElementById('cancelBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+    let previousState = [];
+
+    if (markAllPresentBtn && modal) {
+        markAllPresentBtn.addEventListener('click', function() {
+            modal.style.display = 'block';
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            if (modal) modal.style.display = 'none';
+        });
+    }
+
+    if (cancelBtn && modal) {
+        cancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+
+    if (confirmBtn && modal && markAllPresentBtn && undoAllPresentBtn) {
+        confirmBtn.addEventListener('click', function() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="present_"]');
+            previousState = Array.from(checkboxes).map(checkbox => ({
+                id: checkbox.name.split('_')[1],
+                checked: checkbox.checked
+            }));
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                toggleAbsentReason(checkbox, checkbox.name.split('_')[1]);
+            });
+            modal.style.display = 'none';
+            markAllPresentBtn.style.display = 'none';
+            undoAllPresentBtn.style.display = 'inline-block';
+        });
+    }
+
+    if (undoAllPresentBtn && markAllPresentBtn) {
+        undoAllPresentBtn.addEventListener('click', function() {
+            previousState.forEach(state => {
+                const checkbox = document.querySelector(`input[name="present_${state.id}"]`);
+                if (checkbox) {
+                    checkbox.checked = state.checked;
+                    toggleAbsentReason(checkbox, state.id);
+                }
+            });
+            markAllPresentBtn.style.display = 'inline-block';
+            undoAllPresentBtn.style.display = 'none';
+        });
+    }
+
+    if (modal) {
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

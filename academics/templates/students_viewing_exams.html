@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% load my_filters %}
+
+{% block content %}
+<style>
+    .wider-card {
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+    }
+    .skill-score {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        line-height: 20px;
+        text-align: center;
+        border-radius: 50%;
+        font-weight: bold;
+        margin: 0 5px;
+        padding-top: 10px;
+    }
+    .skill-reason {
+        font-style: italic;
+        color: #666;
+    }
+    .overall-score {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    .overall-reason {
+        color: #d9534f;
+        font-weight: bold;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        {% if exams %}
+        <div class="card my-4 wider-card">
+            <div class="container overflow-auto">
+
+                <div class="card-header">Coursework Marks</div>
+                <!-- Add the download button here -->
+                <a href="{% url 'download_exam_results_pdf' candidate.id %}" class="btn sm btn-primary">
+                    <i class="bi bi-download"></i> Download Results (PDF)
+                </a>
+                <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center;">Examination Name</th>
+                        <th style="text-align: center;">Overall Score</th>
+                        <th style="text-align: center;">Individual Scores</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for exam in exams %}
+                    <tr>
+                        <td style="text-align: center;">
+                            {% if exam.name_of_exam.examination_name %}
+                                {{ exam.name_of_exam.examination_name }}
+                            {% else %}
+                                {{ exam.name_of_exam.class_level }}
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if exam.percentage_score %}
+                                <span class="overall-score">{{ exam.percentage_score }}</span>
+                            {% elif exam.missed_exam_reason %}
+                                <span class="overall-reason">{{ exam.missed_exam_reason }}</span>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if not exam.missed_exam_reason %}
+                                {% for skill in skills %}
+                                    {% with score=exam|get_skill_score:skill total=exam|get_skill_total:skill reason=exam|get_skill_missed_reason:skill %}
+                                        <div>
+                                            <strong>{{ skill|title }}:</strong>
+                                            {% if score %}
+                                                <span class="skill-score" style="background-color: {% if score >= 80 %}#28a745{% elif score >= 60 %}#ffc107{% else %}#dc3545{% endif %}">
+                                                    {{ score }}<br>
+                                                    <small>/ {{ total|default_if_none:"-" }}</small>
+                                                </span><br><br>
+                                            {% elif reason %}
+                                                <span class="skill-reason">{{ reason }}</span><br><br>
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </div>
+                                    {% endwith %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="overall-reason">Exam not taken</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br>
+        {% else %}
+        <div class="card my-4 wider-card">
+            <div class="container overflow-auto">
+                <div class="card-header">Contact Your Teacher</div>
+                <div class="card-body">
+                    <p>No exam records found.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <br>
+</main>
+{% endblock %}

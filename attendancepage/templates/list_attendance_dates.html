@@ -1,0 +1,104 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .attendance-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .attendance-table th, .attendance-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .attendance-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .attendance-table tr:last-child td {
+        border-bottom: none;
+    }
+    .attendance-link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .attendance-link:hover {
+        text-decoration: underline;
+    }
+    .attendance-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .attendance-info h5, .attendance-info p {
+        margin-bottom: 10px;
+    }
+    .attendance-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-calendar-check"></i> Attendance Records</h3>
+                <div class="attendance-info">
+                    <p class="text-center mb-1"><i class="fas fa-info-circle"></i> Select a date to edit the attendance records you have added.</p>
+                </div>
+
+                {% if organized_data %}
+                    <div class="table-responsive">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Teacher</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for date, usernames in organized_data.items %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'edit_class_attendance' date|date:'Y-m-d' %}" class="attendance-link">
+                                                {{ date|date:"F d, Y" }}
+                                            </a>
+                                        </td>
+                                        <td>{{ usernames|join:", " }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">No attendance records found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

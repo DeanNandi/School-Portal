@@ -1,0 +1,199 @@
+{% extends 'report_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Card header styling */
+  .card-header {
+    background-color: #f8f9fa;
+    padding: 1em;
+    text-align: center;
+    font-weight: bold;
+  }
+  /* Highlighted location styling */
+  .aside-bar li.active a {
+    color: #007bff;
+    font-weight: bold;
+  }
+  /* Container for the grid and the "View More" button */
+  .card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Grid layout for cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 1em; /* Space between cards */
+    max-height: 40vh; /* Limit initial height */
+    overflow: hidden; /* Hide additional cards initially */
+  }
+
+  /* Individual card styling */
+  .card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for the card */
+    padding: 1em;
+  }
+
+  /* Location heading styling */
+  .documents-heading {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 2em;
+    margin-bottom: 1em;
+  }
+
+  /* Aside bar styling */
+  .aside-bar {
+    width: 250px;
+    background-color: #f8f9fa;
+    padding: 1.5em;
+    margin-right: 1em;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .aside-bar h4 {
+    margin-bottom: 1em;
+    color: #007bff;
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+
+  .aside-bar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .aside-bar li {
+    margin-bottom: 0.8em;
+  }
+
+  .aside-bar a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+
+  .aside-bar a:hover {
+    color: #007bff;
+  }
+
+  .aside-bar .location-count {
+    color: #007bff;
+    font-weight: bold;
+  }
+  /* Search form styling */
+  .search-form {
+    margin-bottom: 2em;
+  }
+
+  .search-form input[type="text"] {
+    width: 300px;
+    padding: 0.5em;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .search-form button {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+</style>
+
+<main id="main">
+  <section id="featured-services" class="featured-services">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3">
+          <aside class="aside-bar">
+            <h4>Course Locations</h4>
+            <ul>
+              {% for location in course_locations %}
+              <li {% if location == selected_location %} class="active"{% endif %}>
+                <a href="?location={{ location }}">{{ location }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </aside>
+        </div>
+        <div class="col-md-9">
+          <div class="card-container">
+            <h1 class="documents-heading">Uploaded Documents</h1>
+            <div class="search-form">
+              <input type="text" id="search-input" placeholder="Search by name or admission number">
+            </div>
+            <div id="search-results" class="row">
+              {% for candidate in candidates %}
+                {% if candidate.contract %}
+                  <div class="col-md-6 mb-4">
+                    <div class="card">
+                      <div>
+                        <h4 class="card-header">{{ candidate.full_name }}</h4>
+                      </div>
+                      <div class="card-body">
+                        <p class="card-text">Admission Number: {{ candidate.admission_number }}</p>
+                        <h6>Uploaded Documents:</h6>
+                        <ul class="list-group list-group-flush">
+                          {% for field_name, file_url in candidate.file_fields %}
+                          <li class="list-group-item">
+                            <a href="{{ file_url }}" target="_blank">{{ field_name }}</a>
+                          </li>
+                          {% empty %}
+                          <li class="list-group-item">No documents uploaded.</li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              {% empty %}
+              <div class="col">
+                <p>No candidates found with contracts.</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    function performSearch() {
+      var searchQuery = $('#search-input').val();
+      var locationQuery = new URLSearchParams(window.location.search).get('location');
+
+      $.ajax({
+        url: '{% url "search_documents" %}',
+        data: {
+          'search': searchQuery,
+          'location': locationQuery
+        },
+        success: function(response) {
+          $('#search-results').html(response.html);
+        }
+      });
+    }
+
+    $('#search-input').on('keyup', function() {
+      performSearch();
+    });
+
+    // Trigger search on page load
+    performSearch();
+  });
+</script>
+{% endblock %}

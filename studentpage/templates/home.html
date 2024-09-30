@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+    <style>
+    .wider-card {
+        width: 100%;
+        max-width: 1200px; /* Prevent cards from becoming too wide */
+        margin: auto;
+    }
+
+    </style>
+<!-- Home page specific content here -->
+<main id="main">
+        {% include "header.html" %}
+    <div class="vertical-space">
+        {% if candidate %}
+                <div class="card my-4 wider-card">
+            <div class="container overflow-auto">
+                <!-- Candidate Details Table -->
+
+                    <div class="card-header">Student Profile</div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td><strong>First Name:</strong></td>
+                                <td>{{ candidate.First_Name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Admission Number:</strong></td>
+                                <td>{{ candidate.admission_number }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Other Names:</strong></td>
+                                <td>{{ candidate.Last_Name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date of Birth:</strong></td>
+                                <td>{{ candidate.Date_of_Birth }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sex:</strong></td>
+                                <td>{{ candidate.Sex }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Address:</strong></td>
+                                <td>{{ candidate.Address }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Telephone:</strong></td>
+                                <td>{{ candidate.phone_number }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mail:</strong></td>
+                                <td>{{ candidate.email_address }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+                <!-- Course Intake Table -->
+                <div class="card my-4 wider-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Cohort</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{ candidate.course_intake }}</td>
+                            </tr>
+                            <!-- Add more rows if needed -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <p>User details not found.</p>
+        {% endif %}
+    </div>
+
+</main>
+{% endblock %}

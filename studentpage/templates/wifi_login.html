@@ -1,0 +1,47 @@
+{% extends 'login_base.html' %}
+
+{% block content %}
+  <main>
+    <div class="container py-5">
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="card-header col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+              <div class="section-title ">
+                <h2 style="text-align: center;">WiFi Login</h2>
+                <p style="text-align: center;">Please enter your credentials to access the internet.</p>
+              </div>
+              <form method="POST" action="{% url 'wifi_login' %}?client_mac={{ request.GET.client_mac }}" class="w-100">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="bi bi-envelope-fill"></i>
+                    </span>
+                  </div>
+                  <input type="email" name="email" placeholder="Email..." class="form-control" required>
+                </div>
+                <div class="input-group mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                  </div>
+                  <input type="password" name="password" placeholder="Password..." class="form-control" required>
+                </div>
+                <div class="d-flex justify-content-center mt-3 login_container">
+                  <button class="btn login_btn" type="submit">Login</button>
+                </div>
+              </form>
+            </div>
+            <div class="mt-4 w-100">
+              <div class="d-flex justify-content-center links">
+                {% for message in messages %}
+                <p id="messages" class="text-danger">{{message}}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+{% endblock %}

@@ -1,0 +1,112 @@
+<style>
+    #footer {
+        background: #f8f9fa;
+        color: #333;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        padding: 40px 0 20px;
+    }
+
+    .footer-container {
+        max-width: 1140px;
+        margin: auto;
+        padding: 0 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+    }
+
+    .footer-card {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: calc(50% - 15px);
+        min-width: 250px;
+        max-width: 400px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .footer-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .footer-card h4 {
+        color: #5BA2A3;
+        font-size: 18px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-links li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-links a {
+        color: #666;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        flex-grow: 1;
+    }
+
+    .footer-links a:hover {
+        color: #5BA2A3;
+    }
+
+    .footer-links i {
+        margin-right: 10px;
+        font-size: 12px;
+        color: #5BA2A3;
+        flex-shrink: 0;
+    }
+
+    .copyright {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+        color: #666;
+    }
+
+    @media (max-width: 768px) {
+        .footer-card {
+            width: 100%;
+        }
+    }
+</style>
+
+<footer id="footer">
+    <div class="footer-container">
+        <div class="footer-card">
+            <h4>CRM System Links</h4>
+            <ul class="footer-links">
+                <li><i class="bi bi-chevron-right"></i><a href="https://bit.ly/AG-System">CRM Homepage</a></li>
+                <li><i class="bi bi-chevron-right"></i><a href="https://www.crm-system.germaninstitute.co.ke/crmpage/add-candidate">Candidate Forms</a></li>
+                <li><i class="bi bi-chevron-right"></i><a href="https://www.crm-system.germaninstitute.co.ke/admin/">CRM System Administration</a></li>
+            </ul>
+        </div>
+        <div class="footer-card">
+            <h4>School Management Links</h4>
+            <ul class="footer-links">
+                <li><i class="bi bi-chevron-right"></i><a href="https://www.school.germaninstitute.co.ke/login/?next=/">Students' Homepage</a></li>
+                <li><i class="bi bi-chevron-right"></i><a href="https://www.school.germaninstitute.co.ke/teacherpage/teacher-login/">Teachers' Homepage</a></li>
+                <li><i class="bi bi-chevron-right"></i><a href="https://www.school.germaninstitute.co.ke/admin/">Schools' System Administration</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="copyright">
+        &copy; Copyright <strong><span>2024 AG German Institute.</span></strong> All Rights Reserved
+    </div>
+</footer>

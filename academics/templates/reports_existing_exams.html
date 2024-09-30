@@ -1,0 +1,265 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .exam-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .exam-table th, .exam-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .exam-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .exam-table tr:last-child td {
+        border-bottom: none;
+    }
+    .exam-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .exam-info h5, .exam-info p {
+        margin-bottom: 10px;
+    }
+    .exam-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+    .btn-success {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+    }
+</style>
+
+<!--Modal-->
+<style>
+    /* Styles for the custom modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-file-alt"></i> Class Reports Information</h3>
+
+                {% if exam_data %}
+    <div class="exam-info">
+        <h5 class="text-center mb-3">
+            <i class="fas fa-graduation-cap"></i>
+            {{ exam_data.0.exam.class_information.course_class_no }} - {{ exam_data.0.exam.class_information.course_intake }}
+        </h5>
+        <p class="text-center">
+            <i class="fas fa-calendar-alt"></i> Class Intake: {{ exam_data.0.exam.class_information.course_intake }}
+        </p>
+        <p class="text-center">
+            <i class="fas fa-map-marker-alt"></i> Class Location: {{ exam_data.0.exam.class_information.teacher.course_location }}
+        </p>
+    </div>
+    <div class="exam-info">
+        <small><p class="text-center mb-1"><i class="fas fa-info-circle"></i> Select Examination to Add, Update or Remove Reports.</p></small>
+    </div>
+                    <div class="table-responsive">
+                            <table class="exam-table">
+        <thead>
+            <tr>
+                <th>Examination Name</th>
+                <th style="text-align: center;">Date Scheduled</th>
+                <th style="text-align: center;">Date Entered</th>
+                <th style="text-align: center;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in exam_data %}
+            <tr>
+                <td style="text-align: center;">
+                    <a href="{% url 'filter_students_for_reports' exam_id=item.exam.id %}?course_class_no={{ item.exam.class_information.course_class_no }}">
+                        {% if item.exam.examination_name %}
+                            {{ item.exam.examination_name }}
+                        {% else %}
+                            {{ item.exam.class_level }}
+                        {% endif %}
+                    </a>
+                </td>
+                <td style="text-align: center;">
+                    <input type="datetime-local"
+                           class="scheduled-date"
+                           id="exam-{{ item.exam.id }}"
+                           value="{{ item.scheduled_date|date:'Y-m-d\TH:i' }}"
+                           {% if not item.scheduled_date %}placeholder="Schedule this exam"{% endif %}>
+                </td>
+                <td style="text-align: center;">
+                    {{ item.exam.date_added }}
+                </td>
+                <td style="text-align: center;">
+                    <button class="btn btn-primary btn-sm save-date" data-exam-id="{{ item.exam.id }}">Save</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">No exam information found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+<!-- Add this right before the closing </main> tag -->
+<div id="customModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modalMessage"></p>
+    </div>
+</div>
+
+</main>
+<script>
+    document.querySelectorAll('.save-date').forEach(button => {
+        button.addEventListener('click', function() {
+            const examId = this.dataset.examId;
+            const scheduledDate = document.getElementById(`exam-${examId}`).value;
+            updateScheduledDate(examId, scheduledDate);
+        });
+    });
+
+    function updateScheduledDate(examId, scheduledDate) {
+        fetch("{% url 'update_scheduled_date' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                exam_id: examId,
+                scheduled_date: scheduledDate
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showModal('Scheduled date updated successfully');
+            } else {
+                showModal('Error updating scheduled date: ' + data.message);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            showModal('Error updating scheduled date');
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+        // Custom modal functions
+    function showModal(message) {
+        const modal = document.getElementById('customModal');
+        const modalMessage = document.getElementById('modalMessage');
+        modalMessage.textContent = message;
+        modal.style.display = 'block';
+    }
+
+    // Close the modal when clicking on <span> (x)
+    document.querySelector('.close').onclick = function() {
+        document.getElementById('customModal').style.display = 'none';
+    }
+
+    // Close the modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('customModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+
+{% endblock %}

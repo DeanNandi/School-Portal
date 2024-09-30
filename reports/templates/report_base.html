@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>AG German Institute - Reports</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="{% static 'img/german_flag.png' %}" rel="icon">
+    <link href="{% static 'img/german_flag.png' %}" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Roboto:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+          rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <!--Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        #preloader {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: #f0f0f0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+        }
+
+        .loader {
+          width: 100px;
+          height: 100px;
+          position: relative;
+          animation: loader-rotate 2s infinite ease-in-out;
+        }
+
+        .loader-inner {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          border-radius: 50%;
+          border: 4px solid transparent;
+          border-top-color: #000000; /* Black */
+          animation: loader-rotate 1s infinite ease-in-out;
+        }
+
+        .loader-inner::before {
+          content: '';
+          position: absolute;
+          top: 15px;
+          right: 15px;
+          bottom: 15px;
+          left: 15px;
+          border-radius: 50%;
+          border: 4px solid transparent;
+          border-top-color: #FF0000; /* Red */
+          animation: loader-rotate 1.5s infinite ease-in-out;
+        }
+
+        .loader-inner::after {
+          content: '';
+          position: absolute;
+          top: 30px;
+          right: 30px;
+          bottom: 30px;
+          left: 30px;
+          border-radius: 50%;
+          border: 4px solid transparent;
+          border-top-color: #FFFF00; /* Yellow */
+          animation: loader-rotate 2s infinite ease-in-out;
+        }
+
+        @keyframes loader-rotate {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+    </style>
+    <!--Styles for tables and other formats-->
+    <style>
+        /* Container for the grid and the "View More" button */
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Grid layout for cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            gap: 1em; /* Space between cards */
+            max-height: 40vh; /* Limit initial height */
+            overflow: hidden; /* Hide additional cards initially */
+        }
+
+        /* Individual card styling */
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for the card */
+            padding: 1em;
+        }
+
+        /* "View More" button styling */
+        .view-more {
+            margin-top: 1em;
+            padding: 0.5em 1em;
+            background-color: #ccc;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        /* Location heading styling */
+        .location-heading {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 2em;
+            margin-bottom: 1em;
+        }
+    </style>
+
+    <style>
+        /* General styles for the Featured Services section */
+        .featured-services {
+            background-color: #f8f8f8; /* Light grey background */
+            padding: 40px 0; /* Padding around the section for spacing */
+        }
+
+        .featured-services .container {
+            max-width: 1200px; /* Maximum width of the container */
+            margin: auto; /* Center the container */
+            padding: 0 15px; /* Padding on the sides */
+        }
+
+        .featured-services .icon-box {
+            background: #ffffff; /* White background for each icon box */
+            padding: 30px; /* Padding inside the icon box */
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3); /* Subtle shadow for 3D effect */
+            border-radius: 10px; /* Rounded corners */
+            transition: all 0.3s ease-in-out; /* Smooth transition for hover effects */
+            display: flex; /* Flexbox for alignment */
+            flex-direction: column; /* Stack items vertically */
+            align-items: center; /* Center-align the items horizontally */
+        }
+
+        .featured-services .icon-box:hover {
+            transform: translateY(-10px); /* Lift the box slightly on hover */
+        }
+
+        .featured-services .icon {
+            margin-bottom: 15px; /* Space below the icon */
+            font-size: 36px; /* Size of the icon */
+            color: #5BA2A3; /* Color of the icon */
+        }
+
+        .featured-services h4.title {
+            margin-bottom: 15px; /* Space below the title */
+            font-size: 18px; /* Font size of the title */
+            font-weight: 600; /* Font weight for the title */
+        }
+
+        .featured-services .description {
+            text-align: center; /* Center-align the text */
+            font-size: 14px; /* Font size of the description */
+            line-height: 24px; /* Line height for better readability */
+        }
+
+        @media (max-width: 991px) {
+            .featured-services .icon-box {
+                margin-bottom: 20px; /* Space between boxes on smaller screens */
+            }
+        }
+    </style>
+    <!--End of these styles-->
+
+    <!-- Styles for filters -->
+    <style>
+        .filter-section {
+          background-color: #ffffff;
+          border-radius: 10px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          padding: 25px;
+          margin-bottom: 30px;
+        }
+        .filter-section h5 {
+          color: #333;
+          margin-bottom: 20px;
+          font-weight: 600;
+        }
+        .filter-categories {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+        }
+        .filter-category {
+          flex: 1 1 200px;
+        }
+        .filter-category h6 {
+          color: #007bff;
+          margin-bottom: 10px;
+          font-weight: 600;
+          font-size: 1rem;
+        }
+        .filter-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .filter-tag {
+          display: inline-block;
+          padding: 6px 14px;
+          background-color: #f0f4f8;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          color: #495057;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .filter-tag:hover, .filter-tag.active {
+          background-color: #007bff;
+          color: #fff;
+        }
+        .filter-tag.hidden {
+          display: none;
+        }
+        .load-more {
+          font-size: 0.9rem;
+          color: #007bff;
+          cursor: pointer;
+          transition: color 0.3s ease;
+          margin-top: 10px;
+          display: inline-block;
+        }
+        .load-more:hover {
+          color: #0056b3;
+          text-decoration: underline;
+        }
+        .filter-info {
+          font-size: 0.85rem;
+          color: #6c757d;
+          margin-top: 10px;
+        }
+        #active-filters-display {
+          background-color: #f8f9fa;
+          padding: 15px;
+          border-radius: 5px;
+          margin-bottom: 20px;
+        }
+        .active-filter-tag {
+          display: inline-block;
+          padding: 5px 10px;
+          margin: 5px;
+          background-color: #007bff;
+          color: white;
+          border-radius: 20px;
+        }
+        .remove-filter {
+          cursor: pointer;
+          margin-left: 5px;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+
+<body>
+<div id="preloader">
+  <div class="loader">
+    <div class="loader-inner"></div>
+  </div>
+</div>
+
+<script>
+  window.addEventListener('load', function() {
+    var preloader = document.getElementById('preloader');
+    if (preloader) {
+      preloader.style.display = 'none';
+    }
+  });
+</script>
+{% include "top_bar.html" %}
+
+{% block content %}
+
+<!-- This is where page-specific content will go -->
+
+{% endblock %}
+<br><br>
+{% include "rep_footer.html" %}
+
+<!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#example1').DataTable({
+        responsive: true,
+        info: false,
+        ordering: false,
+        paging: true,
+        pageLength: 25
+    });
+});
+</script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

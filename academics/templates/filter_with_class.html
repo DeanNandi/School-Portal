@@ -1,0 +1,106 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .class-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .class-table th, .class-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .class-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .class-table tr:last-child td {
+        border-bottom: none;
+    }
+    .class-image {
+        width: 100%;
+        max-width: 150px;
+        height: auto;
+        border-radius: 8px;
+    }
+    .class-link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .class-link:hover {
+        text-decoration: underline;
+    }
+    .class-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-graduation-cap"></i> Select an Intake</h3>
+                <div class="class-info">
+                    <p class="text-center mb-1">Choose an Intake to view its assessments</p>
+                </div>
+
+                {% if unique_class_numbers %}
+                    <div class="table-responsive">
+                        <table class="class-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;">Select Intake</th>
+                                    <th style="text-align: center;">Intake Information</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for class_number, intake_date in unique_class_numbers %}
+                                    <tr>
+                                        <td style="width: 25%">
+                                            <a href="{% url 'filter_students_for_exam' %}?course_class_no={{ class_number }}">
+                                                <img src="{% static 'img/german_flag.png' %}" class="class-image" alt="German Flag">
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'filter_students_for_exam' %}?course_class_no={{ class_number }}" class="class-link">
+                                                {{ class_number }} - {{ intake_date }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">No class codes found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .btn-extra-sm {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.75rem;
+}
+
+</style>
+<style>
+
+    .wider-card {
+        width: 100%;
+        max-width: 1200px; /* Prevent cards from becoming too wide */
+        margin: auto;
+    }
+</style>
+<main id="main">
+        {% include "header.html" %}
+    <div class="vertical-space">
+        <div id="upload-success-message" style="display: none; color: green; margin-bottom: 20px;">
+            File uploaded successfully!
+        </div>
+
+                <div class="card my-4 wider-card">
+            <div class="card-body overflow-auto form-group container">
+                        <h5 class="card-title">Upload Your Documents </h5>
+               <span><small>Only PDF, JPG, JPEG and PNG files are allowed</small></span>
+        <form id="uploadForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Example for Personal Documents Section -->
+
+                <div class="card-header">Personal Documents</div>
+                <div class="card-body overflow-auto">
+            {% for field_name, field in categories.personal_documents.items %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.value %}
+                    <a href="{{ field.value.url }}" target="_blank">View Current File</a>
+                    <!-- Delete button -->
+            <button type="button" class="btn btn-danger btn-sm delete-document-btn btn-extra-sm"
+                    data-doc-field="{{ field.name }}" data-candidate-id="{{ candidate.id }}">
+                <i class="bi bi-trash3"></i>
+            </button>
+
+
+
+                    <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+                {% endif %}
+                <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" {% if field.field.required %}required{% endif %}>
+                <small id="{{ field.id_for_label }}Help" class="form-text text-muted">{{ field.help_text }}</small>
+                {% for error in field.errors %}
+                    <div class="error" style="color: red;">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+                </div>
+
+                        <!-- Educational Documents Section -->
+                <div class="card-header">Educational Documents</div>
+                <div class="card-body overflow-auto">
+                    {% for field_name, field in categories.educational_documents.items %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% if field.value %}
+                                <a href="{{ field.value.url }}" target="_blank">View Current File</a>
+                                                <!-- Delete button -->
+            <button type="button" class="btn btn-danger btn-sm delete-document-btn btn-extra-sm"
+                    data-doc-field="{{ field.name }}" data-candidate-id="{{ candidate.id }}">
+                <i class="bi bi-trash3"></i>
+            </button>
+                            <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+                            {% endif %}
+                            <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" {% if field.field.required %}required{% endif %}>
+                            <small id="{{ field.id_for_label }}Help" class="form-text text-muted">{{ field.help_text }}</small>
+                            {% for error in field.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                        <!-- Professional Documents Section -->
+
+                <div class="card-header">Professional Documents</div>
+                <div class="card-body overflow-auto">
+                    {% for field_name, field in categories.professional_documents.items %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% if field.value %}
+                                <a href="{{ field.value.url }}" target="_blank">View Current File</a>
+                                                <!-- Delete button -->
+            <button type="button" class="btn btn-danger btn-sm delete-document-btn btn-extra-sm"
+                    data-doc-field="{{ field.name }}" data-candidate-id="{{ candidate.id }}">
+                <i class="bi bi-trash3"></i>
+            </button>
+                            <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+                            {% endif %}
+                            <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" {% if field.field.required %}required{% endif %}>
+                            <small id="{{ field.id_for_label }}Help" class="form-text text-muted">{{ field.help_text }}</small>
+                            {% for error in field.errors %}
+                                <div class="error" style="color: red;">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+            </div>
+
+            <!-- Transcript Upload Field -->
+            <div class="form-group">
+                <label for="other_transcripts">Upload Transcripts</label>
+                <input type="file" name="other_transcripts" id="other_transcripts" class="form-control" multiple>
+                <small class="form-text text-muted">Upload any additional transcripts. Supports multiple files.</small>
+            </div>
+        </form>
+        <br>
+            </div>
+                </div>
+        <!-- Transcripts Panel -->
+                <div class="card my-4 wider-card">
+            <div class="card-header">Transcripts Uploaded</div>
+            <div class="card-body overflow-auto">
+                {% if transcripts %}
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Transcript Name</th>
+                        <th>Remove</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for transcript in transcripts %}
+                    <tr>
+                        <td>
+                            <a href="{{ transcript.other_transcripts.url }}" target="_blank">Click To View Document</a>
+                        </td>
+                        <td>
+                            <!-- Delete Transcript Form -->
+                            <form action="{% url 'delete_transcript' transcript.id %}" method="post"
+                                  style="margin-bottom: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to delete this transcript?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                    </div>
+                </div>
+                <br>
+            </div>
+
+
+        {% else %}
+        <p>User details not found.</p>
+        {% endif %}
+
+
+</main>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Check if the upload was successful on a previous attempt
+        if (localStorage.getItem('uploadSuccess') === 'true') {
+            $('#upload-success-message').show().delay(5000).fadeOut();
+            localStorage.removeItem('uploadSuccess'); // Clear the flag
+        }
+
+        $('input[type="file"]').on('change', function(event) {
+            var formData = new FormData($('#uploadForm')[0]);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            $.ajax({
+                url: '',  // Leave empty to post back to the same URL
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    // Set a flag in local storage before reloading
+                    localStorage.setItem('uploadSuccess', 'true');
+                    location.reload();
+                },
+                error: function(xhr) {
+                    console.log('Error uploading file.');
+                }
+            });
+        });
+    });
+</script>
+<script>
+$(document).ready(function() {
+    $('#uploadForm').on('submit', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+
+        $.ajax({
+            url: '/upload-documents/',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                alert('Documents uploaded successfully.');
+                location.reload(); // Or update UI as needed
+            },
+            error: function(xhr) {
+                if (xhr.status === 400) {
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    // Clear previous errors
+                    $(".error").remove();
+                    // Iterate over the errors object and display errors
+                    for (var field in errors) {
+                        var fieldErrors = errors[field][0].message; // Example to get the first error
+                        var input = $("[name=" + field + "]");
+                        input.after('<div class="error" style="color: red;">' + fieldErrors + '</div>');
+                    }
+                } else {
+                    alert('An error occurred. Please try again.');
+                }
+            }
+        });
+    });
+});
+</script>
+
+
+<script>
+    $(document).ready(function() {
+    $('.delete-document-btn').click(function(e) {
+        e.preventDefault();
+        var docField = $(this).data('doc-field'); // The document field name
+        var candidateId = $(this).data('candidate-id'); // The candidate ID
+
+        if (confirm('Are you sure you want to delete this document?')) {
+            $.ajax({
+                url: '/delete-document/',
+                type: 'POST',
+                data: {
+                    'doc_field': docField,
+                    'candidate_id': candidateId,
+                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+                },
+                success: function(response) {
+                    if(response.success) {
+                        alert('Document deleted successfully.');
+                        window.location.reload(); // Or better, dynamically remove the element
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while trying to delete the document.');
+                }
+            });
+        }
+    });
+});
+
+</script>
+
+{% endblock %}
+
+

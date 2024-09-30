@@ -1,0 +1,36 @@
+<!-- templates/payment_notifications.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Notifications</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Notifications</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Transaction Amount</th>
+                    <th>Transaction Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for notification in payment_notifications %}
+                <tr>
+                    <td>{{ notification.transactionID }}</td>
+                    <td>{{ notification.firstName }}</td>
+                    <td>{{ notification.lastName }}</td>
+                    <td>{{ notification.transactionAmt }}</td>
+                    <td>{{ notification.transactionDate }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

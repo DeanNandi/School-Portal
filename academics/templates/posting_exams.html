@@ -1,0 +1,607 @@
+{% extends 'teacher_base.html' %}
+
+{% load my_filters %}
+
+{% block content %}
+<style>
+input:disabled, select:disabled {
+    background-color: #f0f0f0;
+    color: #888;
+}
+    .wider-card {
+        margin: 0 auto; /* Center the card horizontally */
+        padding: 15px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Optional: Adds some depth */
+        transition: 0.3s; /* Optional: Adds a transition effect on hover */
+        max-width: 1200px; /* Prevent cards from becoming too wide */
+        width: 100%;
+    }
+    .container {
+        max-width: 1200px; /* Maximum width of the container */
+        margin: auto; /* Centers the container */
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #665454;
+        color: white;
+    }
+    button {
+        display: block;
+        width: 100%; /* Adjust based on preference */
+        padding: 10px;
+        margin-top: 20px; /* Add some space above the button */
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    @media (max-width: 768px) {
+        .wider-card, .table-responsive {
+            padding: 0;
+        }
+        .table-responsive {
+            overflow-x: auto; /* Enable horizontal scrolling on small devices */
+        }
+    }
+
+    .btn i {
+        margin-right: 0; /* Adjust or remove spacing to the right of the icon if necessary */
+    }
+    /* Adjust icon size */
+    .btn .fas {
+        font-size: 1em; /* Adjust the size of icons */
+    }
+
+</style>
+
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .exam-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .exam-table th, .exam-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .exam-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .exam-table tr:last-child td {
+        border-bottom: none;
+    }
+    .exam-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .exam-info h5, .exam-info p {
+        margin-bottom: 10px;
+    }
+    .exam-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+    .btn-success {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+    }
+</style>
+<!--comments for reports-->
+<style>
+    /* General styles */
+.actions-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.reports-column {
+    padding: 14px;
+}
+
+/* Way Forward Dropdown Styles */
+.way-forward-dropdown {
+    position: relative;
+}
+
+.way-forward-toggle {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 6px 10px;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 3px;
+    font-weight: 500;
+    width: 100%;
+    min-width: 160px;
+    outline: none;
+}
+
+.way-forward-toggle:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-color: #3498db;
+}
+
+.way-forward-toggle:focus {
+    outline: none;
+}
+
+.way-forward-toggle .fa-chevron-down {
+    margin-left: 6px;
+    font-size: 10px;
+}
+
+.way-forward-text {
+    flex-grow: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.way-forward-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    min-width: 160px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    border-radius: 3px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.way-forward-content.show {
+    display: block;
+}
+
+.way-forward-options {
+    display: flex;
+    flex-direction: column;
+}
+
+.way-forward-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    border: none;
+    background-color: #ffffff;
+    color: #333;
+    transition: background-color 0.3s ease;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.way-forward-option:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.way-forward-option.selected {
+    background-color: #e1f0fb;
+    color: #3498db;
+    font-weight: 500;
+}
+
+/* Admin Decision Styles */
+.admin-decision {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.admin-decision.pass {
+    background-color: #e8f8f5;
+    color: #27ae60;
+}
+
+.admin-decision.fail {
+    background-color: #fde8e8;
+    color: #e74c3c;
+}
+
+/* Additional styles from the original CSS */
+.btn-minimal {
+    background: none;
+    border: none;
+    color: #333;
+    padding: 6px 10px;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 3px;
+    font-weight: 500;
+    outline: none;
+}
+
+.btn-minimal:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.btn-minimal:focus {
+    outline: none;
+}
+
+.btn-minimal .icon {
+    margin-right: 6px;
+    font-size: 10px;
+}
+
+.data-indicator {
+    color: #2ecc71;
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+.way-forward-section, .notes-section {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.section-title {
+    font-size: 13px;
+    color: #34495e;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+</style>
+<!--Minimalistic CSS for Passed Message-->
+<style>
+    .passed-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e8f5e9; /* Light green background */
+    border: 1px solid #4CAF50; /* Green border */
+    color: #2e7d32; /* Dark green text */
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    height: 36px;
+    margin: 10px 0;
+}
+
+.passed-message .badge {
+    display: inline;
+    background-color: #4CAF50;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-right: 6px;
+    font-size: 12px;
+}
+
+/* Ensure the reports column centers its content */
+.reports-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    text-align: center;
+}
+
+/* Adjust the actions container to take full width */
+.actions-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+</style>
+<!--Colour of failure-->
+<style>
+    .failed-assessments {
+        font-size: 0.75em;
+        color: #dc3545;
+        margin-top: 5px;
+        max-width: 150px; /* Adjust this value based on your needs */
+    }
+    .failed-skill {
+        display: block;
+        line-height: 1.3;
+    }
+</style>
+<!--Admin-->
+<style>
+    .admin-decision {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.75em;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .admin-decision.approved {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    .admin-decision.rejected {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+    .admin-decision.pending {
+        background-color: #fff3e0;
+        color: #ef6c00;
+    }
+</style>
+<!--Last modified-->
+<style>
+  .sticky-timestamp {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    font-size: 0.875rem;
+    color: #666;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .sticky-timestamp:hover {
+    background-color: rgba(255, 255, 255, 1);
+  }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4">
+                    <i class="fas fa-file-alt"></i>
+                    Record Assessments
+                </h3>
+
+
+            <form method="POST" action="{% url 'manage_student_exams' exam_id=examination.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="course_class_no" value="{{ examination.class_information.course_class_no }}">
+                <input type="hidden" name="time_filter" value="{{ current_time_filter }}">
+                <input type="hidden" name="save_all" value="true">
+            <div class="exam-info">
+                <h5 class="text-center mb-3">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ examination.class_information.course_class_no }} - {{ examination.class_information.course_intake }}
+                </h5>
+                <p class="text-center">
+                    <i class="fas fa-map-marker-alt"></i> Class Location: {{ examination.class_information.teacher.course_location }}
+                </p>
+                <p class="text-center">
+                    <i class="fas fa-clock"></i> Time: {{ time_choices|get_by_key:current_time_filter }}
+                </p>
+                <p class="text-center">
+                    <i class="fas fa-file-alt"></i> Assessment:
+                    {% if examination.examination_name %}
+                    {{ examination.examination_name }}
+                    {% else %}
+                    {{ examination.class_level }}
+                    {% endif %}
+                </p>
+            </div>
+                <div class="d-flex justify-content-start">
+                    <a href="#" class="btn btn-sm btn-primary mb-3" data-bs-toggle="modal"
+                       data-bs-target="#overallClassReportModal" role="button">
+                        <i class="fas fa-clipboard-list"></i> Overall Assessment Report
+                    </a>
+                </div>
+                <div id="last-modified-timestamp" class="sticky-timestamp">
+                    Last modified: <span id="timestamp"></span>
+                </div>
+                <br>
+                    <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th style="width: 15%">Student Name</th>
+                        <th style="text-align: center;">Speaking</th>
+                        <th style="text-align: center;">Listening</th>
+                        <th style="text-align: center;">Reading</th>
+                        <th style="text-align: center;">Writing</th>
+                        <th style="text-align: center;">Average</th>
+                        <th style="text-align: center;">Reports</th>
+                    </tr>
+                    <tr>
+                        <th colspan="1">Total Scores:</th>
+                        {% for skill in skills %}
+                        <th>
+                            <input type="number" step="0.01" id="{{ skill }}_total" name="{{ skill }}_total"
+                                   class="form-control skill-total-global" placeholder="Total"
+                                   value="{{ global_totals|get_item:skill|default_if_none:'' }}">
+                        </th>
+                        {% endfor %}
+                        <th colspan="2"></th>
+                    </tr>
+                    <tr>
+                        <th colspan="1">Description:</th>
+                        <th style="text-align: center;">Score / Total</th>
+                        <th style="text-align: center;">Score / Total</th>
+                        <th style="text-align: center;">Score / Total</th>
+                        <th style="text-align: center;">Score / Total</th>
+                        <th colspan="2"></th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for student in students %}
+                        {% with student_exam=student_exams_dict|get:student.id %}
+                        <tr>
+                    <td>
+                        {{ student.First_Name }} {{ student.Last_Name }}
+
+                    </td>
+                        <input type="hidden" name="student_id_{{ forloop.counter0 }}" value="{{ student.id }}">
+                    {% for skill in skills %}
+            <td>
+                <input type="number" step="0.01" id="{{ skill }}_score_{{ student.id }}" name="{{ skill }}_score_{{ student.id }}"
+                    value="{% if student_exam %}{{ student_exam|get_skill_score:skill|default_if_none:'' }}{% endif %}" class="form-control skill-input autosave-input" placeholder="Score" data-skill="{{ skill }}" data-student-id="{{ student.id }}">
+                <input type="number" step="0.01" id="{{ skill }}_total_{{ student.id }}" name="{{ skill }}_total_{{ student.id }}"
+                    value="{% if student_exam %}{{ student_exam|get_skill_total:skill|default_if_none:'' }}{% endif %}" class="form-control skill-total autosave-input" placeholder="{{ global_totals|get:skill|default:'Total' }}" data-skill="{{ skill }}" data-student-id="{{ student.id }}" readonly>
+                <select name="{{ skill }}_missed_reason_{{ student.id }}" id="{{ skill }}_missed_reason_{{ student.id }}" class="form-control reason-select autosave-input" data-skill="{{ skill }}" data-student-id="{{ student.id }}">
+                    <option value="">-- Select Reason --</option>
+                    {% for value, display in missed_assessment_reasons %}
+                    <option value="{{ value }}" {% if student_exam and student_exam|get_skill_missed_reason:skill == value %}selected{% endif %}>{{ display }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% endfor %}
+
+            <td>
+                <input type="text" id="score_{{ student.id }}" name="score_{{ student.id }}"
+                    value="{{ student_exam.percentage_score|default_if_none:'' }}" class="form-control" readonly>
+                {% if student_exam %}
+                    <div class="failed-assessments">
+                        {% for skill in skills %}
+                            {% if student_exam|get_skill_score:skill and student_exam|get_skill_total:skill %}
+                                {% with score=student_exam|get_skill_score:skill|to_float total=student_exam|get_skill_total:skill|to_float %}
+                                    {% if score < total|multiply:0.6 %}
+                                    <strong>Failed:</strong>
+                                        <span class="failed-skill">{{ skill|title }}</span>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </td>
+
+                            <td data-label="REPORTS" class="reports-column">
+    <div class="actions-container">
+        {% if student_exam %}
+            {% with examination_report=examination_reports_dict|get:student_exam.id %}
+                {% if student_exam|exam_passed %}
+                <div class="passed-message">
+                    <span class="badge badge-success">Passed</span>
+                </div>
+                {% else %}
+                    <div class="dropdown way-forward-dropdown">
+                        <button id="wayForwardBtn_{{ student_exam.id }}" class="btn btn-sm way-forward-toggle" onclick="toggleWayForwardDropdown(this)">
+                            <span class="way-forward-text">
+                                {% if examination_report.way_forward %}
+                                    {{ examination_report.way_forward }}
+                                {% else %}
+                                    Select Way Forward
+                                {% endif %}
+                            </span>
+                            <i class="fas fa-chevron-down ml-2"></i>
+                        </button>
+                        <div class="dropdown-content way-forward-content">
+                            <div class="way-forward-options">
+                                {% for value, display in way_forward_choices %}
+                                <button class="way-forward-option {% if examination_report.way_forward == value %}selected{% endif %}"
+                                        data-student-id="{{ student_exam.id }}"
+                                        onclick="updateWayForward(this, '{{ value }}')">
+                                    {{ value }}
+                                    <i class="fas fa-check ml-1 {% if examination_report.way_forward != value %}d-none{% endif %}"></i>
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        {% else %}
+            <span>No Assessment Recorded.</span>
+        {% endif %}
+    </div>
+    <!--Admin Decision-->
+    {% with student_passed=students_passed_dict|get:student.id %}
+    {% if not student_passed %}
+    {% with admin_decision=admin_decisions_dict|get:student.id %}
+    {% if admin_decision %}
+    <br>
+    <small class="admin-decision {{ admin_decision }}">
+        Admin Decision: {{ admin_decision|title }}
+    </small>
+    {% endif %}
+    {% endwith %}
+    {% endif %}
+    {% endwith %}
+</td>
+                        </tr>
+                        {% endwith %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </form>
+        </div>
+    </div>
+    <br><br>
+</div>
+{% include 'examination_reports_modals.html' %}
+</main>
+
+{% include 'scripts_for_scores_added.html' %}
+
+
+{% endblock %}
+

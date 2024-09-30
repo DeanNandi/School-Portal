@@ -1,0 +1,207 @@
+{% extends 'report_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-color: #3a5a78;
+        --background-color: #f5f7fa;
+        --card-background: #ffffff;
+        --text-color: #333333;
+        --hover-color: #4a6a88;
+        --heading-color: #2c3e50;
+    }
+
+    .featured-services {
+        background-color: var(--background-color);
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .main-heading {
+        color: var(--heading-color);
+        font-size: 2.5em;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .main-heading::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background-color: var(--primary-color);
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .sub-heading {
+        color: var(--heading-color);
+        font-size: 2em;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .location-grid, .class-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    .card {
+        background: var(--card-background);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
+        background: var(--primary-color);
+        color: var(--card-background);
+        padding: 20px;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    .card-body {
+        padding: 20px;
+        color: var(--text-color);
+    }
+
+    .card-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+    }
+
+    .back-button {
+        display: inline-block;
+        margin: 20px 0;
+        padding: 10px 20px;
+        background-color: var(--primary-color);
+        color: var(--card-background);
+        text-decoration: none;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+        font-weight: bold;
+    }
+
+    .back-button:hover {
+        background-color: var(--hover-color);
+        transform: scale(1.05);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .slide-in {
+        animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
+
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container">
+            <div id="locationView" class="fade-in">
+                <h1 class="main-heading">Attendance Records by Location</h1>
+                <div class="location-grid">
+                    {% for location, class_groups in class_groups_by_location.items %}
+                        <div class="card slide-in" onclick="showClasses('{{ location|slugify }}')">
+                            <div class="card-header">
+                                <i class="bi bi-geo-alt card-icon"></i>
+                                <h2>{{ location }}</h2>
+                            </div>
+                            <div class="card-body">
+                                <p><i class="bi bi-book"></i> {{ class_groups|length }} classes</p>
+                                <p><i class="bi bi-arrow-right"></i> Click to view details</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% for location, class_groups in class_groups_by_location.items %}
+                <div id="{{ location|slugify }}-classes" class="hidden fade-in">
+                    <a href="#" class="back-button" onclick="showLocations()">
+                        <i class="bi bi-arrow-left"></i> Back to Locations
+                    </a>
+                    <h2 class="sub-heading">{{ location }} Attendance Records</h2>
+                    <div class="class-grid">
+                        {% for class_no, class_info in class_groups.items %}
+                            <div class="card slide-in" onclick="navigateToAttendance('{{ class_info.course_intake|urlencode }}', '{{ class_info.Course_Location|urlencode }}')">
+                                <div class="card-header">
+                                    <i class="bi bi-people card-icon"></i>
+                                    <h3>{{ class_info.course_intake }}</h3>
+                                </div>
+                                <div class="card-body">
+                                    <p><i class="bi bi-hash"></i> {{ class_no }}</p>
+                                    <p><i class="bi bi-person-badge"></i> Teacher(s): {{ class_info.teachers }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+
+<script>
+    function showClasses(locationSlug) {
+        document.getElementById('locationView').classList.add('hidden');
+        var classView = document.getElementById(locationSlug + '-classes');
+        classView.classList.remove('hidden');
+        classView.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showLocations() {
+        var classViews = document.querySelectorAll('[id$="-classes"]');
+        classViews.forEach(function(view) {
+            view.classList.add('hidden');
+        });
+        var locationView = document.getElementById('locationView');
+        locationView.classList.remove('hidden');
+        locationView.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function navigateToAttendance(courseIntake, courseLocation) {
+        window.location.href = "{% url 'display_attendance' %}?course_intake=" + courseIntake + "&Course_Location=" + courseLocation;
+    }
+</script>
+{% endblock %}

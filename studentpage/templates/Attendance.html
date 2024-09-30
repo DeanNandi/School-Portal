@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% load static %} <!-- Load static to use static files -->
+
+{% block content %}
+<style>
+    .coming-soon-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        text-align: center;
+    }
+    .coming-soon-message {
+        font-size: 2rem; /* Adjust size as needed */
+        margin-top: 20px;
+        color: #007bff; /* Bootstrap primary color, or choose your own */
+    }
+    .coming-soon-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px; /* Optional: adds rounded corners to the image */
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="coming-soon-container">
+        <!-- Image of a cartoon or gif on a computer screen -->
+        <img src="{% static 'img/coming_soon.jpg' %}" alt="Coming Soon" class="coming-soon-image">
+        <h2 class="coming-soon-message">Coming Soon</h2>
+    </div>
+</main>
+{% endblock %}

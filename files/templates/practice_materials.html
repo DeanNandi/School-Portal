@@ -1,0 +1,62 @@
+{% extends 'files_base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+.wider-card {
+    width: 100%;
+    max-width: 1000px; /* Prevent cards from becoming too wide */
+    margin: auto;
+
+/* Ensure images scale down on smaller devices */
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+}
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <!-- Course Intake Table -->
+        <div class="card my-4 wider-card">
+            <div class="table-responsive">
+                <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                    {% if pdf_practice %}
+                    <thead>
+                        <tr>
+                            <th>Resource</th>
+                            <th>Book Information</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for files in pdf_practice %}
+                        <tr>
+                            <td style="width: 20%">
+                                <a href="{{ link }}" target="_blank">
+                                    <img src="{% static 'img/german_flag.png' %}" class="img-fluid rounded" alt="..." style="width: 100%;">
+                                </a>
+                            </td>
+                            <td>
+                                <p>
+                                    <a href="{{ link }}" target="_blank">{{ files.description }}</a>
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% else %}
+                    <P>No details found for this resource.</P>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    <br><br>
+    </div>
+    <br><br>
+</main>
+
+
+{% endblock %}

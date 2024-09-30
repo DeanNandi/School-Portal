@@ -1,0 +1,69 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    <style>
+    .wider-card {
+        margin: 0 auto; /* Center the card horizontally */
+        padding: 15px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Optional: Adds some depth */
+        transition: 0.3s; /* Optional: Adds a transition effect on hover */
+        max-width: 1200px; /* Prevent cards from becoming too wide */
+        width: 100%;
+    }
+    .container {
+        max-width: 1200px; /* Maximum width of the container */
+        margin: auto; /* Centers the container */
+    }
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #665454;
+        color: white;
+    }
+</style>
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="card my-4 wider-card">
+            <div class="container overflow-auto">
+        <h1>Examinations</h1>
+                <p>Find Your Recorded Examinations. Delete, View or Modify The Results</p><br>
+                <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+            <thead>
+                <tr>
+                    <th>select exam</th>
+                    <th>Examination Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+
+                    <tr>
+                        <td style="width: 20%">
+                            <a href="{% url 'edit_exams' exam.id %}}">
+                                <img src="{% static 'img/german_flag.png' %}" class="img-fluid rounded" alt="..."
+                                     style="width: 100%;">
+                            </a>
+                        </td>
+                        <td><a href="{% url 'edit_exams' exam.id %}">{{ exam.examination_name }} </a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        </div>
+        <br><br>
+    </div>
+</main>
+
+{% endblock %}

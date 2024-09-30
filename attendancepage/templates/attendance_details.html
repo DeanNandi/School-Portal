@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .wider-card {
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .present-mark {
+        color: green;
+    }
+    .absent-mark {
+        color: red;
+    }
+    .attendance-summary {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .attendance-summary .summary-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        width: 30%;
+        text-align: center;
+    }
+    .summary-card h4 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .summary-card p {
+        font-size: 1.2em;
+        color: #555;
+    }
+    table th, table td {
+        text-align: center;
+        padding: 10px;
+    }
+    table th {
+        background-color: #007bff;
+        color: white;
+    }
+    table td {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="card my-4 wider-card">
+            <div class="container overflow-auto">
+                <div class="card-header text-center">Class Attendance Details</div>
+                <br>
+                <div class="attendance-summary">
+                    <div class="summary-card">
+                        <h4>Total Classes</h4>
+                        <p>{{ total_classes }}</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Days Present</h4>
+                        <p>{{ days_present }}</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Days Absent</h4>
+                        <p>{{ days_absent }}</p>
+                    </div>
+                </div>
+
+                {% for month_stat in monthly_stats %}
+                <div class="card mb-3">
+                    <div class="card-header month-card" data-month="{{ forloop.counter }}">
+                        <h5 class="mb-0">
+                            {{ month_stat.month }} - Total Classes: {{ month_stat.total_classes }}
+                        </h5>
+                    </div>
+                    <div id="month-{{ forloop.counter }}" class="month-details">
+                        <div class="card-body">
+                            <p>Present: {{ month_stat.days_present }} days</p>
+                            <p>Absent: {{ month_stat.days_absent }} days</p>
+
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Present?</th>
+                                        <th>Absent Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attendance in month_stat.attendances %}
+                                    <tr>
+                                        <td>{{ attendance.date|date:"F j, Y" }}</td>
+                                        <td>
+                                            {% if attendance.present %}
+                                                <span class="present-mark">&#10004;</span>
+                                            {% else %}
+                                                <span class="absent-mark">&#10008;</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if attendance.absent_reason %}
+                                                <span class="absent-mark">{{ attendance.absent_reason }}</span>
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <br><br>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('.month-card').on('click', function() {
+            var monthId = $(this).data('month');
+            $('#month-' + monthId).slideToggle();
+        });
+    });
+</script>
+{% endblock %}

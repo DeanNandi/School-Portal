@@ -1,0 +1,129 @@
+<!-- ======= Header ======= -->
+<style>
+
+    .card {
+        background: linear-gradient(to right, #ffffff 0%, #f1f1f1 100%); /* Gradient background */
+        padding: 25px 20px; /* Increased padding for better spacing */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Stronger shadow for depth */
+        border-radius: 12px; /* Slightly larger border-radius for a softer edge */
+        margin: 20px auto; /* Centered margin with auto on the sides */
+        max-width: 1200px; /* Maximum width to contain the header */
+    }
+
+    nav ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: flex-end;
+        width: 100%; /* Ensure the nav takes full width of its container */
+    }
+
+    nav li {
+        position: relative;
+        margin-left: 20px; /* Add spacing between navigation items */
+    }
+
+    nav li a {
+        display: block;
+        color: #333; /* Darker text for better contrast */
+        text-align: center;
+        padding: 10px 15px; /* Adjusted padding */
+        text-decoration: none;
+        transition: background-color 0.3s; /* Smooth transition for background color */
+    }
+
+    nav li a:hover, nav li a.active {
+        background-color: #cee1f2; /* Subtle change on hover */
+    }
+
+    .dropdown > a:after {
+        content: " \25BC"; /* Unicode for down arrow, consider using a font icon for more control */
+        font-size: 0.8em;
+        margin-left: 5px;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #ffffff;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        z-index: 1000;
+    }
+
+    .dropdown-content a {
+        color: #666; /* Lighter text color for dropdown items */
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    @media (hover: hover) {
+        .dropdown:hover .dropdown-content {
+            display: block; /* Only show dropdown on hover for capable devices */
+        }
+    }
+</style>
+
+{% include "header.html" %}
+<div class="card">
+    <header id="header" class="d-flex align-items-center">
+        <div class="container d-flex align-items-center justify-content-between">
+            <h3 class="logo">Reports<span>.</span></h3>
+            <nav id="navbar" class="navbar">
+                <ul>
+                    <li><a class="nav-link scrollto active" href="{% url 'reports' %}">Home</a></li>
+                    <li class="dropdown"><a href="javascript:void(0);" class="dropbtn">Analytics </a>
+                        <div class="dropdown-content">
+                            <h6><a href="{% url 'payment_comparison' %}"><span>Payments Made </span> </a></h6>
+                            <h6><a href="{% url 'admin_attendance_dates' %}"><span>Attendance Overview</span> </a></h6>
+                            <h6><a href="{% url 'reports_logout' %}"><span>Logout</span> </a></h6>
+                        </div>
+                    </li>
+                </ul>
+            </nav><!-- .navbar -->
+        </div>
+    </header>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Toggle dropdowns on click
+        var dropdownToggles = document.querySelectorAll('.dropdown .dropbtn');
+
+        dropdownToggles.forEach(function(toggle) {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                var dropdownContent = this.parentElement.querySelector('.dropdown-content');
+                if (dropdownContent.style.display === 'block') {
+                    dropdownContent.style.display = 'none';
+                } else {
+                    // Close other dropdowns if open
+                    document.querySelectorAll('.dropdown-content').forEach(function(content) {
+                        content.style.display = 'none';
+                    });
+                    dropdownContent.style.display = 'block';
+                }
+            });
+        });
+
+        // Close dropdowns when clicking elsewhere on the page
+        window.addEventListener('click', function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                document.querySelectorAll('.dropdown-content').forEach(function(content) {
+                    if (content.style.display === 'block') {
+                        content.style.display = 'none';
+                    }
+                });
+            }
+        }, true); // Use capturing phase to ensure the event is caught
+    });
+</script>
+

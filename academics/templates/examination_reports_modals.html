@@ -1,0 +1,590 @@
+{% load my_filters %}
+{% for student in students %}
+{% with student_exam=student_exams_dict|get:student.id|default:None %}
+{% if student_exam %}
+<!-- Combined Notes and Way Forward Modal -->
+<div class="modal fade" id="notesModal{{ student_exam.id }}" tabindex="-1"
+     aria-labelledby="notesModalLabel{{ student_exam.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notesModalLabel{{ student_exam.id }}">
+                    Report for {{ student_exam.student.First_Name }} {{ student_exam.student.Last_Name }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'update_examination_report' student_exam.id %}"
+                  id="notesForm{{ student_exam.id }}">
+                {% csrf_token %}
+                <input type="hidden" name="course_class_no" value="{{ course_class_no }}">
+                <input type="hidden" name="time_filter" value="{{ time_filter }}">
+                <input type="hidden" name="way_forward" id="wayForwardInput{{ student_exam.id }}"
+                       value="{{ student_exam.examination_report.way_forward|default:'' }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <strong>Way Forward:</strong> <span id="modalWayForward{{ student_exam.id }}">{{ student_exam.examination_report.way_forward|default:"Not set" }}</span>
+                    </div>
+                    {% if student_exam.examination_report and student_exam.examination_report.teachers_notes %}
+                    <div class="mb-3">
+                        <strong>Saved Comments:</strong>
+                        <p>{{ student_exam.examination_report.teachers_notes }}</p>
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label for="teachersNotes{{ student_exam.id }}" class="form-label"><strong>Teacher's Comments:</strong></label>
+                        <textarea name="teachers_notes" id="teachersNotes{{ student_exam.id }}" class="form-control"
+                                  rows="5" required
+                                  aria-describedby="notesHelp{{ student_exam.id }}">{{ student_exam.examination_report.teachers_notes|default:'' }}</textarea>
+                        <small id="notesHelp{{ student_exam.id }}" class="form-text text-muted">
+                            Please provide detailed comments about the student's performance based on the recommended way forward.
+                            {% if student_exam.examination_report and student_exam.examination_report.teachers_notes %}
+                            <br><br>
+                            To preserve previous comments, please add your new comments to the existing text.
+                        {% endif %}
+                        </small>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="saveNotes{{ student_exam.id }}">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endwith %}
+{% endfor %}
+
+<!-- Overall Class Report Modal -->
+<div class="modal fade" id="overallClassReportModal" tabindex="-1" aria-labelledby="overallClassReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="overallClassReportModalLabel">Overall Assessment Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="overallClassReportForm" method="POST" action="{% url 'save_overall_class_report' %}">
+                {% csrf_token %}
+                <input type="hidden" name="examination_id" value="{{ examination.id }}">
+                <input type="hidden" name="cohort_id" value="{{ cohort.id }}">
+                <div class="modal-body">
+                    <div class="cohort-info mb-3">
+                        <h5><i class="fas fa-users"></i> {{ cohort.course_class_no }} - {{ cohort.course_intake }}</h5>
+                        <p><i class="fas fa-calendar-alt"></i> Class Intake: {{ cohort.course_intake }}</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Class Location: {{ teacher.course_location }}</p>
+                        <p><i class="fas fa-clock"></i> Class Time: {{ time_choices|get_by_key:current_time_filter }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="overallClassReport" class="form-label">Overall Assessment Report:</label>
+                        <textarea name="overall_report" id="overallClassReport" class="form-control" rows="10">{{ class_report.overall_report }}</textarea>
+                        <small class="form-text text-muted">
+                            Please write a brief report describing the progress made by this class, any issues encountered, and provide any other general comments you have regarding the class.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="saveOverallClassReport">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Add this at the end of your examination_reports_modals.html file -->
+<div class="modal fade" id="overallReportModal" tabindex="-1" aria-labelledby="overallReportModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="overallReportModalLabel">Overall Assessment Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+<form id="overallReportForm" method="POST" action="{% url 'manage_student_exams' exam_id=examination.id %}">                {% csrf_token %}
+                <input type="hidden" name="course_class_no" value="{{ course_class_no }}">
+                <input type="hidden" name="time_filter" value="{{ time_filter }}">
+                <div class="modal-body">
+                    <div class="cohort-info mb-3">
+                        <h5><i class="fas fa-users"></i> {{ cohort.course_class_no }} - {{ cohort.course_intake }}</h5>
+                        <p><i class="fas fa-calendar-alt"></i> Class Intake: {{ cohort.course_intake }}</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Class Location: {{ teacher.course_location }}</p>
+                        <p><i class="fas fa-clock"></i> Class Time: {{ time_choices|get_by_key:current_time_filter }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="overallReport" class="form-label">Overall Assessment Report:</label>
+                        <textarea name="overall_report" id="overallReport" class="form-control" rows="10">{{ class_report.overall_report }}</textarea>
+                        <small class="form-text text-muted">
+                            For this class you teach, please write a brief report describing
+                            the progress made, any issues encountered, and provide any other general
+                            comments you have regarding the class.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="saveOverallReport">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Message Modal (unchanged) -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalLabel">Notification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="messageModalContent"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="messageModalCancel" data-bs-dismiss="modal">Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="messageModalConfirm">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<!--Main Script-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle overall report form submission
+    const overallReportForm = document.getElementById('overallReportForm');
+    if (overallReportForm) {
+        overallReportForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            const modalElement = this.closest('.modal');
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
+            // Get the current URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const formData = new FormData(this);
+
+            // Append current URL parameters to the form data
+            for (const [key, value] of urlParams) {
+                formData.append(key, value);
+            }
+
+            // Use Fetch API for AJAX request
+            fetch(this.action + '?' + urlParams.toString(), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => Promise.reject(data));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    hideModal(modalElement);
+                    showMessageModal('Overall report saved successfully!');
+                } else {
+                    throw new Error(data.message || 'An error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('AJAX error', error);
+                showMessageModal(error.message || 'An error occurred. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            });
+        });
+    }
+
+    // Time option selection functionality
+    const timeOptions = document.querySelectorAll('.time-option');
+
+    // Django messages display
+    {% if messages %}
+        {% for message in messages %}
+            showMessageModal("{{ message }}");
+        {% endfor %}
+    {% endif %}
+
+    // Function to show custom message modal
+    function showMessageModal(message, onConfirm = null, showCancel = false) {
+        const messageModalElement = document.getElementById('messageModal');
+        const messageModal = new bootstrap.Modal(messageModalElement);
+        document.getElementById('messageModalContent').textContent = message;
+
+        const confirmButton = document.getElementById('messageModalConfirm');
+        const cancelButton = document.getElementById('messageModalCancel');
+
+        // Set up confirm button action
+        confirmButton.onclick = () => {
+            hideModal(messageModalElement);
+            if (onConfirm) onConfirm();
+        };
+
+        // Show/hide cancel button based on parameter
+        cancelButton.style.display = showCancel ? 'inline-block' : 'none';
+        cancelButton.onclick = () => hideModal(messageModalElement);
+
+        messageModal.show();
+    }
+
+    // Track form changes
+    document.querySelectorAll('form :input').forEach(input => {
+        input.addEventListener('change', function() {
+            this.closest('form').dataset.changed = 'true';
+        });
+    });
+
+    // Confirmation before closing modal with unsaved changes
+    document.querySelectorAll('.modal').forEach(modalElement => {
+        modalElement.addEventListener('hide.bs.modal', function (e) {
+            const form = this.querySelector('form');
+            if (form && form.dataset.changed === 'true') {
+                e.preventDefault(); // Prevent the modal from closing
+                showMessageModal(
+                    'You have unsaved changes. Are you sure you want to close?',
+                    () => {
+                        form.dataset.changed = 'false';  // Reset the change tracker
+                        hideModal(this);
+                    },
+                    true  // Show cancel button
+                );
+            }
+        });
+    });
+});
+</script>
+
+<!--Overall Class Report Script-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const overallClassReportForm = document.getElementById('overallClassReportForm');
+    const overallClassReportModal = document.getElementById('overallClassReportModal');
+    const messageModal = document.getElementById('messageModal');
+    const messageModalContent = document.getElementById('messageModalContent');
+    const messageModalConfirm = document.getElementById('messageModalConfirm');
+
+    if (overallClassReportForm) {
+        overallClassReportForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
+            // Use Fetch API for AJAX request
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    hideModal(overallClassReportModal);
+                    showMessageModal('Overall class report saved successfully!');
+                } else {
+                    throw new Error(data.message || 'An error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('AJAX error', error);
+                showMessageModal(error.message || 'An error occurred. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            });
+        });
+    }
+
+    // Function to hide modal and remove backdrop
+    function hideModal(modal) {
+        const modalInstance = bootstrap.Modal.getInstance(modal);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+        // Remove backdrop manually if it persists
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+        // Remove modal-open class from body
+        document.body.classList.remove('modal-open');
+        // Remove inline style from body
+        document.body.style.removeProperty('padding-right');
+    }
+
+    // Add event listener for modal hidden event
+    overallClassReportModal.addEventListener('hidden.bs.modal', function () {
+        hideModal(overallClassReportModal);
+    });
+
+    // Close button event listener for overall class report modal
+    const closeButton = overallClassReportModal.querySelector('.btn-close');
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            hideModal(overallClassReportModal);
+        });
+    }
+
+    // Function to show message modal
+    function showMessageModal(message) {
+        messageModalContent.textContent = message;
+        const modalInstance = new bootstrap.Modal(messageModal);
+        modalInstance.show();
+    }
+
+    // Event listener for message modal confirm button
+    messageModalConfirm.addEventListener('click', function() {
+        hideModal(messageModal);
+    });
+
+    // Event listener for message modal hidden event
+    messageModal.addEventListener('hidden.bs.modal', function () {
+        hideModal(messageModal);
+    });
+});
+</script>
+
+<!--Way Forward Dropdown Script-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.way-forward-option').forEach(button => {
+        button.addEventListener('click', function() {
+            const studentId = this.dataset.studentId;
+            const wayForward = this.textContent.trim();
+            const modalId = `notesModal${studentId}`;
+
+            // Remove 'selected' class and hide check icon from all buttons
+            document.querySelectorAll(`.way-forward-option[data-student-id="${studentId}"]`).forEach(btn => {
+                btn.classList.remove('selected');
+                btn.querySelector('.fa-check').classList.add('d-none');
+            });
+
+            // Add 'selected' class and show check icon for clicked button
+            this.classList.add('selected');
+            this.querySelector('.fa-check').classList.remove('d-none');
+
+            // Update hidden input with the full description
+            const wayForwardInput = document.getElementById(`wayForwardInput${studentId}`);
+            if (wayForwardInput) {
+                wayForwardInput.value = wayForward;
+            }
+
+            // Update displayed Way Forward in the modal with the full description
+            const modalWayForward = document.getElementById(`modalWayForward${studentId}`);
+            if (modalWayForward) {
+                modalWayForward.textContent = wayForward;
+            }
+
+            // Update the current Way Forward status in the column with the full description
+            const currentWayForward = document.getElementById(`currentWayForward${studentId}`);
+            if (currentWayForward) {
+                currentWayForward.textContent = wayForward;
+            }
+
+            // Trigger the notes modal
+            showModal(modalId);
+        });
+    });
+});
+</script>
+
+<!--Form Submission Script-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Updated form submission handler
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            const modalElement = form.closest('.modal');
+            const studentId = form.querySelector('input[name="way_forward"]').id.replace('wayForwardInput', '');
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
+            // Use Fetch API for AJAX request
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('AJAX success', data);
+
+                if (data.status === 'success') {
+                    // Update UI elements
+                    const wayForward = form.querySelector('input[name="way_forward"]').value;
+                    const teacherNotes = form.querySelector('textarea[name="teachers_notes"]').value;
+
+                    // Update Way Forward buttons
+                    document.querySelectorAll(`.way-forward-option[data-student-id="${studentId}"]`).forEach(btn => {
+                        if (btn.textContent.trim() === wayForward) {
+                            btn.classList.add('selected');
+                            btn.querySelector('.fa-check').classList.remove('d-none');
+                        } else {
+                            btn.classList.remove('selected');
+                            btn.querySelector('.fa-check').classList.add('d-none');
+                        }
+                    });
+
+                    // Update Notes button
+                    const notesBtn = document.querySelector(`.notes-btn[data-student-id="${studentId}"]`);
+                    if (notesBtn) {
+                        const dataIndicator = notesBtn.querySelector('.data-indicator');
+                        if (dataIndicator) {
+                            dataIndicator.classList.toggle('d-none', !teacherNotes);
+                        }
+                    }
+
+                    // Update the Way Forward display in the modal
+                    const modalWayForward = document.getElementById(`modalWayForward${studentId}`);
+                    if (modalWayForward) {
+                        modalWayForward.textContent = wayForward;
+                    }
+
+                    // Update the current Way Forward status in the column
+                    const currentWayForward = document.getElementById(`currentWayForward${studentId}`);
+                    if (currentWayForward) {
+                        currentWayForward.textContent = wayForward;
+                    }
+
+                    // Close the modal and remove backdrop
+                    hideModal(modalElement);
+
+                    // Show success message
+                    showMessageModal(data.message || 'Changes saved successfully!');
+
+                    form.dataset.changed = 'false';  // Reset the change tracker
+                } else {
+                    throw new Error(data.message || 'An error occurred');
+                }
+            })
+            .catch(error => {
+                console.error('AJAX error', error);
+                showMessageModal(error.message || 'An error occurred. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            });
+        });
+    });
+
+    // Function to show custom message modal
+    window.showMessageModal = function(message, onConfirm = null, showCancel = false) {
+        const messageModalElement = document.getElementById('messageModal');
+        const messageModal = new bootstrap.Modal(messageModalElement);
+        document.getElementById('messageModalContent').textContent = message;
+
+        const confirmButton = document.getElementById('messageModalConfirm');
+        const cancelButton = document.getElementById('messageModalCancel');
+
+        // Set up confirm button action
+        confirmButton.onclick = () => {
+            hideModal(messageModalElement);
+            if (onConfirm) onConfirm();
+        };
+
+        // Show/hide cancel button based on parameter
+        cancelButton.style.display = showCancel ? 'inline-block' : 'none';
+        cancelButton.onclick = () => hideModal(messageModalElement);
+
+        messageModal.show();
+    }
+});
+</script>
+
+<!--Modal Management Script-->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to show modal (compatible with Bootstrap 4 and 5)
+    window.showModal = function(modalId) {
+        const modalElement = document.getElementById(modalId);
+        if (typeof bootstrap !== 'undefined') {
+            // Bootstrap 5
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        } else {
+            // Bootstrap 4
+            $(modalElement).modal('show');
+        }
+    }
+
+    // Updated function to hide modal (compatible with Bootstrap 4 and 5)
+    window.hideModal = function(modalElement) {
+        if (typeof bootstrap !== 'undefined') {
+            // Bootstrap 5
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        } else {
+            // Bootstrap 4
+            $(modalElement).modal('hide');
+        }
+
+        // Ensure the modal backdrop is removed and body class is reset
+        setTimeout(() => {
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+        }, 200); // Small delay to ensure modal hiding animation completes
+    }
+
+    // Event listeners for opening modals
+    document.querySelectorAll('[data-bs-toggle="modal"], [data-toggle="modal"]').forEach(element => {
+        element.addEventListener('click', function() {
+            const targetModal = this.getAttribute('data-bs-target') || this.getAttribute('data-target');
+            showModal(targetModal.replace('#', ''));
+        });
+    });
+
+    // Event listeners for closing modals
+    document.querySelectorAll('[data-bs-dismiss="modal"], [data-dismiss="modal"]').forEach(element => {
+        element.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            hideModal(modal);
+        });
+    });
+});
+</script>
+{% endblock %}

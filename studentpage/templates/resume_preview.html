@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+
+<style>
+    .resume-preview {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+    .section {
+        margin-bottom: 20px;
+    }
+    .profile-photo {
+        max-width: 200px;
+        border-radius: 50%;
+    }
+    .experience-item, .education-item, .reference-item {
+        margin-bottom: 15px;
+    }
+    @media print {
+        .btn {
+            display: none;
+        }
+    }
+</style>
+
+<div class="resume-preview">
+    <h1>Resume Preview</h1>
+    
+    <div class="section personal-info">
+        <h2>Personal Information</h2>
+        <img src="{{ candidate.photo.url }}" alt="Profile Photo" class="profile-photo">
+        <p><strong>Name:</strong> {{ candidate.First_Name }} {{ candidate.Last_Name }}</p>
+        <p><strong>Email:</strong> {{ candidate.email_address }}</p>
+        <p><strong>Phone:</strong> {{ candidate.phone_number }}</p>
+        <p><strong>Address:</strong> {{ candidate.Street_Address }}</p>
+    </div>
+
+    <div class="section summary">
+        <h2>Professional Summary</h2>
+        <p>{{ resume.summary }}</p>
+    </div>
+
+    <div class="section work-experience">
+        <h2>Work Experience</h2>
+        {% for company in resume.company %}
+            <div class="experience-item">
+                <h3>{{ company }}</h3>
+                <p><strong>Role:</strong> {{ resume.role|get_item:forloop.counter0 }}</p>
+                <p><strong>Tenure:</strong> {{ resume.work_tenure|get_item:forloop.counter0 }}</p>
+                <p><strong>Responsibilities:</strong></p>
+                <ul>
+                    {% for responsibility in resume.responsibilities|get_item:forloop.counter0|split_lines %}
+                        <li>{{ responsibility }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="section education">
+        <h2>Education</h2>
+        {% for school in resume.school %}
+            <div class="education-item">
+                <h3>{{ school }}</h3>
+                <p><strong>Qualification:</strong> {{ resume.qualification|get_item:forloop.counter0 }}</p>
+                <p><strong>Tenure:</strong> {{ resume.education_tenure|get_item:forloop.counter0 }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="section skills">
+        <h2>Skills</h2>
+        <ul>
+            {% for skill in resume.skills %}
+                <li>{{ skill }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section languages">
+        <h2>Languages</h2>
+        <ul>
+            {% for language in resume.languages %}
+                <li>{{ language }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section certifications">
+        <h2>Certifications</h2>
+        <ul>
+            {% for certification in resume.certifications %}
+                <li>{{ certification }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section hobbies">
+        <h2>Interests and Hobbies</h2>
+        <ul>
+            {% for hobby in resume.hobbies %}
+                <li>{{ hobby }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section references">
+        <h2>References</h2>
+        {% for name in resume.reference_names %}
+            <div class="reference-item">
+                <p><strong>Name:</strong> {{ name }}</p>
+                <p><strong>Company:</strong> {{ resume.reference_companies|get_item:forloop.counter0 }}</p>
+                <p><strong>Contact:</strong> {{ resume.reference_contacts|get_item:forloop.counter0 }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'resume_builder' %}" class="btn btn-primary">Edit Resume</a>
+    <button onclick="window.print()" class="btn btn-secondary">Print Resume</button>
+
+    <a href="{% url 'generate_pdf_resume' %}" class="btn btn-primary">Download PDF Resume</a>
+</div>
+{% endblock %}
+

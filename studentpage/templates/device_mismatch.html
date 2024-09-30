@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Device Mismatch</h2>
+    <p>Your account is associated with a different device. Would you like to update to this new device?</p>
+    <form method="post" action="{% url 'update_device' %}">
+        {% csrf_token %}
+        <input type="hidden" name="client_mac" value="{{ client_mac }}">
+        <button type="submit" class="btn btn-primary">Update Device</button>
+    </form>
+    <a href="{% url 'wifi_login' %}" class="btn btn-secondary">Cancel</a>
+</div>
+{% endblock %}

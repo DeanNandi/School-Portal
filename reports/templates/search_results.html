@@ -1,0 +1,24 @@
+{% for candidate in candidates %}
+<div class="col-md-6 mb-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ candidate.full_name }}</h5>
+            <p class="card-text">Admission Number: {{ candidate.admission_number }}</p>
+            <h6>Uploaded Documents:</h6>
+            <ul class="list-group list-group-flush">
+                {% for field_name, file_url in candidate.file_fields %}
+                <li class="list-group-item">
+                    <a href="{{ file_url }}" target="_blank">{{ field_name }}</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No documents uploaded.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="col">
+    <p>No candidates found.</p>
+</div>
+{% endfor %}

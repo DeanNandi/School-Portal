@@ -1,0 +1,66 @@
+{% extends 'report_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .teacher-card {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5em;
+    margin-bottom: 1.5em;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .teacher-card h3 {
+    color: #007bff;
+    margin-bottom: 1em;
+  }
+
+  .teacher-card p {
+    margin-bottom: 0.5em;
+  }
+
+  .teacher-card img {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 50%;
+    margin-bottom: 1em;
+  }
+</style>
+
+<main id="main">
+  <section id="teachers" class="teachers">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h2 class="text-center mb-4">Our Teachers</h2>
+          {% for teacher in teachers %}
+          <div class="teacher-card">
+            <div class="row">
+              <div class="col-md-3">
+                {% if teacher.passport_photo %}
+                <img src="{{ teacher.passport_photo.url }}" alt="{{ teacher.first_name }} {{ teacher.last_name }}" class="img-fluid">
+                {% else %}
+                <img src="{% static 'img/german_flag.png' %}" alt="Default Teacher Photo" class="img-fluid">
+                {% endif %}
+              </div>
+              <div class="col-md-9">
+                <h3>{{ teacher.first_name }} {{ teacher.last_name }}</h3>
+                <p><strong>Phone Number:</strong> {{ teacher.phone_number }}</p>
+                <p><strong>Email Address:</strong> {{ teacher.email_address }}</p>
+                <p><strong>Sex:</strong> {{ teacher.sex }}</p>
+                <p><strong>Nationality:</strong> {{ teacher.nationality }}</p>
+                <p><strong>Religion:</strong> {{ teacher.religion }}</p>
+                <p><strong>Course Location:</strong> {{ teacher.course_location }}</p>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-center">No teachers found.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

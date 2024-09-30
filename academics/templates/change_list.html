@@ -1,0 +1,15 @@
+{% extends "change_list.html" %}
+
+{% block content %}
+    {{ block.super }}
+    {% if summary_metrics %}
+    <div class="summary-metrics">
+        <h3>Summary Metrics</h3>
+        <ul>
+            <li>Total Exams: {{ summary_metrics.total_exams }}</li>
+            <li>Average Score: {{ summary_metrics.avg_score|floatformat:2 }}%</li>
+            <li>Missed Exams: {{ summary_metrics.missed_exams }}</li>
+        </ul>
+    </div>
+    {% endif %}
+{% endblock %}

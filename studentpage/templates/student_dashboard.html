@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main id="main">
+  <section id="student-dashboard" class="student-dashboard">
+    <div class="container">
+      <div class="section-title">
+        <h2>Student Dashboard</h2>
+        <p>Welcome, {{ user.candidate.First_Name }} {{ user.candidate.Last_Name }}</p>
+      </div>
+      
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Registered Device</h5>
+              {% if user.candidate.device_mac_address %}
+                <p>MAC Address: {{ user.candidate.device_mac_address }}</p>
+                <a href="{% url 'update_device' %}" class="btn btn-primary">Update Device</a>
+                <a href="{% url 'remove_device' %}" class="btn btn-danger">Remove Device</a>
+              {% else %}
+                <p>No device registered.</p>
+                <a href="{% url 'register_device' %}" class="btn btn-success">Register Device</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Add more sections for student information, courses, assignments, etc. -->
+        
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

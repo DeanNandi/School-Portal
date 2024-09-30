@@ -1,0 +1,257 @@
+{% extends "qr_base.html" %}
+{% load static %}
+{% block title %}Student IDs Draft 1{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .filter-container {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .filter-container h2 {
+        color: #000;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    .form-control {
+        border-radius: 25px;
+        border: 2px solid #000;
+        padding: 10px 15px;
+    }
+    .qr-card {
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .qr-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .card-header {
+        background-color: #fff;
+        padding: 15px;
+        border-bottom: 2px solid #000;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .card-header img {
+        height: 30px;
+    }
+    .card-body {
+        display: flex;
+        padding: 20px;
+    }
+    .card-info {
+        flex: 2;
+        padding-right: 20px;
+    }
+    .card-photo {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .student-photo {
+        width: 100%;
+        height: auto;
+        max-width: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+        border: 2px solid #000;
+    }
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .card p {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+    .info-label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #555;
+    }
+    .info-value {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        color: #000;
+    }
+    .qr-code {
+        text-align: center;
+        margin-top: 10px;
+    }
+    .qr-code img {
+        max-width: 100px;
+        height: auto;
+    }
+    .admission-number {
+        font-size: 0.9rem;
+        margin-top: 5px;
+        color: #555;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="filter-container">
+    <h2>Filter Records</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <select id="locationFilter" class="form-control">
+                <option value="">All Locations</option>
+                {% for location in course_locations %}
+                    <option value="{{ location }}">{{ location }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select id="timeFilter" class="form-control">
+                <option value="">All Times</option>
+                {% for time in course_times %}
+                    <option value="{{ time }}">{{ time }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select id="intakeFilter" class="form-control">
+                <option value="">All Intakes</option>
+                {% for intake in course_intakes %}
+                    <option value="{{ intake }}">{{ intake }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="row" id="qrCardContainer">
+    {% for candidate in candidates %}
+        <div class="col-md-6 mb-4" data-location="{{ candidate.Course_Location }}" data-time="{{ candidate.Time }}" data-intake="{{ candidate.course_intake }}">
+            <div class="card qr-card">
+                <div class="card-header">
+                    <img src="{% static 'img/AG_German_Institute.png' %}" alt="AG German Institute">
+                </div>
+                <div class="card-body">
+                    <div class="card-info">
+                        <p><strong class="info-label">Name:</strong> <span class="info-value">{{ candidate.full_name }}</span></p>
+                        <p><strong class="info-label">Class-Intake:</strong> <span class="info-value">{{ candidate.course_intake }}</span></p>
+                        <div class="qr-code">
+                            {% if candidate.qr_code %}
+                                <img src="{{ candidate.qr_code.qr_code.url }}" alt="QR Code for {{ candidate.full_name }}" class="lazy-load" data-src="{{ candidate.qr_code.qr_code.url }}">
+                            {% else %}
+                                <p>QR Code not generated</p>
+                            {% endif %}
+                            <div class="admission-number">{{ candidate.admission_number }}</div>
+                        </div>
+                    </div>
+                    <div class="card-photo">
+                        {% if candidate.photo %}
+                            <img src="{% static 'img/placeholder.png' %}" data-src="{{ candidate.photo.url }}" alt="{{ candidate.full_name }}" class="img-fluid rounded-circle lazy-load">
+                        {% else %}
+                            <img src="{% static 'img/german_flag.png' %}" alt="Default Photo" class="img-fluid rounded-circle">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if candidates.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; first</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ candidates.previous_page_number }}">previous</a></li>
+        {% endif %}
+
+        <li class="page-item disabled"><a class="page-link" href="#">Page {{ candidates.number }} of {{ candidates.paginator.num_pages }}</a></li>
+
+        {% if candidates.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ candidates.next_page_number }}">next</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ candidates.paginator.num_pages }}">last &raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const locationFilter = document.getElementById('locationFilter');
+        const timeFilter = document.getElementById('timeFilter');
+        const intakeFilter = document.getElementById('intakeFilter');
+        const cards = document.querySelectorAll('#qrCardContainer > div');
+
+        function filterCards() {
+            const selectedLocation = locationFilter.value;
+            const selectedTime = timeFilter.value;
+            const selectedIntake = intakeFilter.value;
+
+            cards.forEach(card => {
+                const locationMatch = !selectedLocation || card.dataset.location === selectedLocation;
+                const timeMatch = !selectedTime || card.dataset.time === selectedTime;
+                const intakeMatch = !selectedIntake || card.dataset.intake === selectedIntake;
+
+                if (locationMatch && timeMatch && intakeMatch) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        locationFilter.addEventListener('change', filterCards);
+        timeFilter.addEventListener('change', filterCards);
+        intakeFilter.addEventListener('change', filterCards);
+    });
+        // Lazy loading for images
+    document.addEventListener("DOMContentLoaded", function() {
+        let lazyImages = [].slice.call(document.querySelectorAll("img.lazy-load"));
+        let active = false;
+
+        const lazyLoad = function() {
+            if (active === false) {
+                active = true;
+
+                setTimeout(function() {
+                    lazyImages.forEach(function(lazyImage) {
+                        if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
+                            lazyImage.src = lazyImage.dataset.src;
+                            lazyImage.classList.remove("lazy-load");
+
+                            lazyImages = lazyImages.filter(function(image) {
+                                return image !== lazyImage;
+                            });
+
+                            if (lazyImages.length === 0) {
+                                document.removeEventListener("scroll", lazyLoad);
+                                window.removeEventListener("resize", lazyLoad);
+                                window.removeEventListener("orientationchange", lazyLoad);
+                            }
+                        }
+                    });
+
+                    active = false;
+                }, 200);
+            }
+        };
+
+        document.addEventListener("scroll", lazyLoad);
+        window.addEventListener("resize", lazyLoad);
+        window.addEventListener("orientationchange", lazyLoad);
+    });
+</script>
+{% endblock %}

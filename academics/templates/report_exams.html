@@ -1,0 +1,158 @@
+{% extends 'report_base.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .pass-rate-high { background-color: #c8e6c9; }  /* Light green */
+    .pass-rate-medium { background-color: #fff9c4; }  /* Light yellow */
+    .pass-rate-low { background-color: #ffcdd2; }  /* Light red */
+    .pass-rate-none { background-color: #f5f5f5; }  /* Light grey */
+
+    .participation-high { background-color: #bbdefb; }  /* Light blue */
+    .participation-medium { background-color: #e1bee7; }  /* Light purple */
+    .participation-low { background-color: #ffccbc; }  /* Light orange */
+    .participation-none { background-color: #f5f5f5; }  /* Light grey */
+
+    .legend-badge {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+
+    .legend-text {
+        vertical-align: middle;
+        margin-right: 15px;
+    }
+
+    .legend-item {
+        display: inline-block;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main id="main">
+<!-- report_exams.html -->
+<div class="container mt-4">
+    <div class="card recent-sales overflow-auto">
+        <div class="card-body">
+           <div class="card-header">
+    <h2 class="text-center mb-0">Examination Report</h2>
+    {% if exams_data %}
+        {% with first_exam=exams_data|first %}
+            <p class="text-center mb-0">
+                Intake: {{ debug_info.params.course_intake|default:"Not available" }}
+            </p>
+            <p class="text-center mb-0">
+                Teacher: {{ first_exam.teacher }}
+            </p>
+               <p class="text-center mb-0">
+                   Data Added By: {{ first_exam.added_by }}
+               </p>
+        {% endwith %}
+    {% else %}
+        <p class="text-center mb-0">No examination data available</p>
+    {% endif %}
+</div>
+            <br>
+            {% if exams_data %}
+                <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Examination Name</th>
+                        <th>Date Scheduled</th>
+                        <th>Date Entered</th>
+                        <th>Pass Rate</th>
+                        <th>Participation Rate</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for exam in exams_data %}
+                    <tr>
+                        <td style="text-align: center;">
+                            <a href="{% url 'view_student_exams' exam.id %}?course_class_no={{ exam.class_information.course_class_no }}">
+                                {{ exam.examination_name }}
+                            </a>
+                        </td>
+                        <td>{{ exam.date_scheduled }}</td>
+                        <td>{{ exam.date_entered }}</td>
+                        <td class="{{ exam.pass_rate_class }}">{{ exam.pass_rate }}</td>
+                        <td class="{{ exam.participation_class }}">{{ exam.participation_rate }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No examination data found for the selected criteria.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if debug_info %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Debug Information</h5>
+            <pre>{{ debug_info|pprint }}</pre>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+    <div class="card my-4">
+        <div class="card-body">
+            <h5 class="card-title">Report Description Legend</h5>
+            <br>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        PASSED <small>(Students who participated in the exam and passed)</small>
+                    </h6>
+                    <div class="legend-item">
+                        <span class="legend-badge pass-rate-high"></span>
+                        <span class="legend-text">High (≥80% passed)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge pass-rate-medium"></span>
+                        <span class="legend-text">Medium (60-79% passed)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge pass-rate-low"></span>
+                        <span class="legend-text">Low (<60% passed)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge pass-rate-none"></span>
+                        <span class="legend-text">Nothing to display</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        PARTICIPANTS<small> (Students who have been added to this class and did the exam)</small>
+                    </h6>
+                    <div class="legend-item">
+                        <span class="legend-badge participation-high"></span>
+                        <span class="legend-text">High (≥90% participated)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge participation-medium"></span>
+                        <span class="legend-text">Medium (75-89% participated)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge participation-low"></span>
+                        <span class="legend-text">Low (<75% participated)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge participation-none"></span>
+                        <span class="legend-text">No data</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

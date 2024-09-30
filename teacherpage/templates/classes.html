@@ -1,0 +1,134 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .cohort-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .cohort-table th, .cohort-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .cohort-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .cohort-table tr:last-child td {
+        border-bottom: none;
+    }
+    .cohort-image {
+        width: 100%;
+        max-width: 150px;
+        height: auto;
+        border-radius: 8px;
+    }
+    .cohort-link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .cohort-link:hover {
+        text-decoration: underline;
+    }
+    .pin-icon {
+        cursor: pointer;
+        color: #6c757d;
+        margin-left: 10px;
+        transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .pin-icon:hover {
+        color: #ffc107;
+    }
+    .pinned .pin-icon {
+        color: #ffc107;
+    }
+    .pinned {
+        background-color: #fff8e1;
+    }
+        .cohort-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .cohort-info h5, .cohort-info p {
+        margin-bottom: 10px;
+    }
+    .cohort-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-graduation-cap"></i> Assigned Intakes</h3>
+                <div class="cohort-info">
+
+                    <p class="text-center mb-1"><i class="fas fa-clipboard-check"></i> Record attendance or contact a recruiter if an Intake is
+                        unavailable.</p>
+                </div>
+
+                {% if cohorts %}
+                    <div class="table-responsive">
+                        <table class="cohort-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" >Select Intake</th>
+                                    <th class="text-center" >Intake Information</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cohort in cohorts %}
+                                    <tr class="{% if cohort.is_pinned %}pinned{% endif %}">
+                                        <td style="width: 25%">
+                                            <a href="{% url 'filter_candidates' %}?cohort_id={{ cohort.id }}">
+                                                <img src="{% static 'img/german_flag.png' %}" class="cohort-image" alt="German Flag">
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'filter_candidates' %}?cohort_id={{ cohort.id }}" class="cohort-link">
+                                                {{ cohort.course_class_no }} - {{ cohort.course_intake }}
+                                            </a>
+                                            <a href="{% url 'toggle_pin' cohort.id %}" class="pin-icon">
+                                                <i class="fas fa-thumbtack" style="{% if cohort.is_pinned %}transform: rotate(45deg);{% endif %}"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center">User details not found or no cohorts assigned.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

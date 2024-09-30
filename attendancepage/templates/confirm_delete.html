@@ -1,0 +1,24 @@
+{% extends 'teacher_base.html' %}
+
+{% block content %}
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="card my-4 wider-card">
+            <div class="container overflow-auto">
+                <div class="table-responsive">
+    <h1>Confirm Deletion</h1>
+    <p>Are you sure you want to delete the attendance record for <strong>{{ attendance_record.candidate }}</strong> on <strong>{{ attendance_record.date }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="javascript:window.history.back();" class="btn btn-secondary">Cancel</a>
+
+    </form>
+    </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

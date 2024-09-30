@@ -1,0 +1,538 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+{% load my_filters %}
+
+
+{% block content %}
+<style>
+    .btn {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 70px;
+        text-decoration: none;
+        margin: 0 5px;
+    }
+    .btn i {
+        margin-right: 5px;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .exam-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .exam-table th, .exam-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+        text-align: center;
+    }
+    .exam-table th {
+        background-color: #e9ecef;
+        color: #333;
+        font-weight: 600;
+    }
+    .exam-table tr:last-child td {
+        border-bottom: none;
+    }
+    .score-green {
+        color: #28a745;
+        font-weight: bold;
+    }
+    .score-red {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .score-na {
+        color: #6c757d;
+        font-style: italic;
+    }
+    .exam-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .exam-info h5, .exam-info p {
+        margin-bottom: 10px;
+    }
+    .exam-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+        .cohort-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .cohort-info h5, .cohort-info p {
+        margin-bottom: 10px;
+    }
+    .cohort-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    @media (max-width: 768px) {
+        .exam-table, .exam-table tbody, .exam-table tr, .exam-table td {
+            display: block;
+            width: 100%;
+        }
+        .exam-table tr {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .exam-table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+        }
+        .exam-table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 15px;
+            width: 50%;
+            padding-right: 15px;
+            font-weight: bold;
+            text-align: left;
+        }
+    }
+</style>
+
+<!--check mark-->
+<style>
+.btn-minimal {
+    background: none;
+    border: none;
+    color: #007bff;
+    padding: 5px 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-minimal:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.btn-minimal .icon {
+    margin-right: 5px;
+}
+
+.data-indicator {
+    color: #28a745;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+.actions-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+</style>
+
+<!--Reports Column-->
+<style>
+.reports-column {
+    padding: 15px;
+}
+
+.actions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.way-forward-section, .notes-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.section-title {
+    font-size: 14px;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.way-forward-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.btn-minimal {
+    background: none;
+    border: 1px solid #ced4da;
+    color: #495057;
+    padding: 4px 8px;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-minimal:hover, .btn-minimal.selected {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.btn-minimal .fa-check {
+    color: #28a745;
+}
+
+.notes-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.data-indicator {
+    color: #28a745;
+    font-size: 10px;
+    margin-left: 5px;
+}
+</style>
+
+<style>
+    .dropdown-toggle {
+        background: none;
+        border: none;
+        color: #007bff;
+        padding: 5px 10px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .dropdown-toggle:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .dropdown-toggle::after {
+        content: '\25BC';
+        font-size: 10px;
+        margin-left: 5px;
+    }
+
+    .dropdown-toggle.active::after {
+        content: '\25B2';
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius: 4px;
+        margin-top: 5px;
+    }
+
+    .dropdown-content.show {
+        display: block;
+    }
+
+    .way-forward-options {
+        padding: 10px;
+    }
+
+    .way-forward-option {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 5px 10px;
+        border: none;
+        background: none;
+        color: #333;
+        transition: background-color 0.3s ease;
+    }
+
+    .way-forward-option:hover {
+        background-color: #f8f9fa;
+    }
+
+    .way-forward-option.selected {
+        background-color: #e9ecef;
+    }
+
+    .actions-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4"><i class="fas fa-file-alt"></i> Examination Reports </h3>
+                <div class="cohort-info">
+                    <h5><i class="fas fa-users"></i> {{ cohort.course_class_no }} - {{ cohort.course_intake }}</h5>
+                    <p><i class="fas fa-calendar-alt"></i> Class Intake: {{ cohort.course_intake }}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Class Location: {{ teacher.course_location }}</p>
+                    <p><i class="fas fa-clock"></i> Class Time: {{ time_filter }}</p>
+                </div>
+
+                <div id="messages-container">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+<!-- Add this button where you want it to appear, perhaps near the top of the page -->
+<button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#overallReportModal">
+    <i class="fas fa-clipboard-list"></i> Overall Class Report
+</button>
+                <div class="table-responsive">
+                        <table id="example1" class="table exam-table table-striped overflow-auto">
+                        <thead>
+                            <tr>
+                                <th class="text-center">STUDENT</th>
+                                <th>SPEAKING</th>
+                                <th>LISTENING</th>
+                                <th>READING</th>
+                                <th>WRITING</th>
+                                <th>AVERAGE</th>
+                                <th class="text-center">REPORTS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student_exam, examination_report in student_exams|zip_lists:examination_reports %}
+                            <tr>
+                                <td data-label="STUDENT">{{ student_exam.student.First_Name }} {{ student_exam.student.Last_Name }}</td>
+                                <td data-label="SPEAKING">
+                                    {% if student_exam.speaking_score is not None and student_exam.speaking_total is not None and student_exam.speaking_total != 0 %}
+                                        {% with percentage=student_exam.speaking_score|div:student_exam.speaking_total|mul:100 %}
+                                        <span class="{% if percentage >= 60 %}score-green{% else %}score-red{% endif %}">
+                                            {{ percentage|floatformat:2 }}%
+                                        </span>
+                                        {% endwith %}
+                                    {% else %}
+                                        <span class="score-na">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="LISTENING">
+                                    {% if student_exam.listening_score is not None and student_exam.listening_total is not None and student_exam.listening_total != 0 %}
+                                        {% with percentage=student_exam.listening_score|div:student_exam.listening_total|mul:100 %}
+                                        <span class="{% if percentage >= 60 %}score-green{% else %}score-red{% endif %}">
+                                            {{ percentage|floatformat:2 }}%
+                                        </span>
+                                        {% endwith %}
+                                    {% else %}
+                                        <span class="score-na">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="READING">
+                                    {% if student_exam.reading_score is not None and student_exam.reading_total is not None and student_exam.reading_total != 0 %}
+                                        {% with percentage=student_exam.reading_score|div:student_exam.reading_total|mul:100 %}
+                                        <span class="{% if percentage >= 60 %}score-green{% else %}score-red{% endif %}">
+                                            {{ percentage|floatformat:2 }}%
+                                        </span>
+                                        {% endwith %}
+                                    {% else %}
+                                        <span class="score-na">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="WRITING">
+                                    {% if student_exam.writing_score is not None and student_exam.writing_total is not None and student_exam.writing_total != 0 %}
+                                        {% with percentage=student_exam.writing_score|div:student_exam.writing_total|mul:100 %}
+                                        <span class="{% if percentage >= 60 %}score-green{% else %}score-red{% endif %}">
+                                            {{ percentage|floatformat:2 }}%
+                                        </span>
+                                        {% endwith %}
+                                    {% else %}
+                                        <span class="score-na">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="TOTAL SCORE">
+    {% if student_exam.percentage_score_as_decimal is not None %}
+        {% if student_exam.speaking_total or student_exam.listening_total or student_exam.reading_total or student_exam.writing_total %}
+            {% with speaking_score=student_exam.speaking_score|default_if_none:0 %}
+            {% with speaking_total=student_exam.speaking_total|default_if_none:1 %}
+            {% with speaking_percentage=speaking_score|div:speaking_total|mul:100 %}
+            {% with speaking_pass=speaking_percentage|gte:60 %}
+            {% with listening_score=student_exam.listening_score|default_if_none:0 %}
+            {% with listening_total=student_exam.listening_total|default_if_none:1 %}
+            {% with listening_percentage=listening_score|div:listening_total|mul:100 %}
+            {% with listening_pass=listening_percentage|gte:60 %}
+            {% with reading_score=student_exam.reading_score|default_if_none:0 %}
+            {% with reading_total=student_exam.reading_total|default_if_none:1 %}
+            {% with reading_percentage=reading_score|div:reading_total|mul:100 %}
+            {% with reading_pass=reading_percentage|gte:60 %}
+            {% with writing_score=student_exam.writing_score|default_if_none:0 %}
+            {% with writing_total=student_exam.writing_total|default_if_none:1 %}
+            {% with writing_percentage=writing_score|div:writing_total|mul:100 %}
+            {% with writing_pass=writing_percentage|gte:60 %}
+                {% all_true speaking_pass listening_pass reading_pass writing_pass as all_pass %}
+                <span class="{% if all_pass %}score-green{% else %}score-red{% endif %}">
+                    {{ student_exam.percentage_score }}
+                </span>
+                {% if not all_pass %}
+                    <br>
+                    <small class="text-danger">
+                        Failed:
+                        {% if student_exam.speaking_total and not speaking_pass %}Speaking {% endif %}
+                        {% if student_exam.listening_total and not listening_pass %}Listening {% endif %}
+                        {% if student_exam.reading_total and not reading_pass %}Reading {% endif %}
+                        {% if student_exam.writing_total and not writing_pass %}Writing{% endif %}
+                    </small>
+                {% endif %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+        {% else %}
+            {% with average_score=student_exam.percentage_score_as_decimal|mul:100 %}
+                <span class="{% if average_score >= 60 %}score-green{% else %}score-red{% endif %}">
+                    {{ student_exam.percentage_score }}
+                </span>
+                {% if average_score < 60 %}
+                    <br>
+                    <small class="text-danger">
+                        Failed: Overall average below 60%
+                    </small>
+                {% endif %}
+            {% endwith %}
+        {% endif %}
+    {% else %}
+        <span class="score-na">N/A</span>
+    {% endif %}
+</td>
+                                <td data-label="REPORTS" class="reports-column">
+    <div class="actions-container">
+        {% with speaking_percentage=student_exam.speaking_score|default_if_none:0|div:student_exam.speaking_total|mul:100 %}
+        {% with listening_percentage=student_exam.listening_score|default_if_none:0|div:student_exam.listening_total|mul:100 %}
+        {% with reading_percentage=student_exam.reading_score|default_if_none:0|div:student_exam.reading_total|mul:100 %}
+        {% with writing_percentage=student_exam.writing_score|default_if_none:0|div:student_exam.writing_total|mul:100 %}
+
+        {% if speaking_percentage >= 60 and listening_percentage >= 60 and reading_percentage >= 60 and writing_percentage >= 60 %}
+            <div class="passed-message">
+                <span class="badge badge-success">Passed</span>
+            </div>
+        {% else %}
+            <div class="dropdown" style="position: relative;">
+                <button class="btn btn-sm btn-minimal dropdown-toggle" onclick="toggleDropdown(this)">
+
+                    Way Forward
+                </button>
+                <div class="dropdown-content">
+                    <div class="way-forward-options">
+                        {% for value, display in way_forward_choices %}
+                        <button class="way-forward-option {% if examination_report.way_forward == value %}selected{% endif %}"
+                                data-student-id="{{ student_exam.id }}">
+                            {{ value }}
+                            <i class="fas fa-check ml-1 {% if examination_report.way_forward != value %}d-none{% endif %}"></i>
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="notes-section">
+                <button type="button" class="btn btn-sm btn-minimal notes-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#notesModal{{ student_exam.id }}"
+                        data-student-id="{{ student_exam.id }}">
+                    <i class="fas fa-sticky-note icon"></i>
+                    Comments
+                    {% if examination_report.teachers_notes %}
+                        <i class="fas fa-check data-indicator" title="Notes available"></i>
+                    {% endif %}
+                </button>
+            </div>
+        {% endif %}
+
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+    </div>
+</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function toggleDropdown(element) {
+        element.classList.toggle('active');
+        element.nextElementSibling.classList.toggle('show');
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropdown-toggle')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
+{% block extra_js %}
+    {% include 'examination_reports_modals.html' %}
+{% endblock %}
+
+{% endblock %}

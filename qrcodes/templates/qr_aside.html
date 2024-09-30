@@ -1,0 +1,16 @@
+{% load static %}
+<i class="bi bi-list mobile-nav-toggle d-xl-none"></i>
+<header id="header">
+    <div class="d-flex flex-column">
+        <div class="profile">
+            <img src="{% static 'img/german_flag.png' %}" alt="" class="img-fluid rounded-circle">
+        </div>
+        <nav id="navbar" class="nav-menu navbar">
+            <ul>
+                <li><a href="{% url 'qr_scanner_logout' %}" class="nav-link scrollto">
+                    <i class="bx bx-log-out"></i> <span>Log-Out</span></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>

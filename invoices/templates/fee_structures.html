@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+    .wider-card {
+        margin: 0 auto;
+        padding: 15px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        transition: 0.3s;
+        max-width: 1200px;
+        width: 100%;
+    }
+    .container {
+        max-width: 100%;
+        margin: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+    th, td {
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #665454;
+        color: white;
+    }
+    button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin-top: 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    @media (max-width: 768px) {
+        .wider-card {
+            padding: 5px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        th, td {
+            padding: 4px;
+        }
+    }
+    @media (max-width: 400px) {
+        th, td {
+            display: block;
+            text-align: right;
+            padding: 2px;
+        }
+        td::before {
+            content: attr(data-label);
+            float: left;
+            font-weight: bold;
+        }
+        th {
+            display: none;
+        }
+    }
+</style>
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        {% if fees_with_payments %}
+            <div class="card my-4 wider-card">
+                <div class="container">
+                    <br>
+                    <div class="card-header">Fee Structure</div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Payment Due Date</th>
+                                    <th>Payment Starting Date</th>
+                                    <th>Payment End Date</th>
+                                    <th>Payment Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in fees_with_payments %}
+                                <tr>
+                                    <td data-label="Payment Due Date">{{ item.calculated_due_date }}</td>
+                                    <td data-label="Payment Starting Date">{{ item.fee.starting_month }}</td>
+                                    <td data-label="Payment End Date">{{ item.fee.due_date }}</td>
+                                    <td data-label="Payment Progress">
+                                        {% with progress=item.payment_made|div:item.fee.total_amount_to_pay %}
+                                        <div style="color: {% if progress == 1 %}green{% elif progress >= 0.5 %}orange{% else %}red{% endif %};">
+                                            {{ item.payment_made|intcomma }} / {{ item.fee.total_amount_to_pay|intcomma }} KES
+                                        </div>
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card my-4 wider-card">
+                <div class="container">
+                    <div class="card-header">Contact The Administration</div>
+                    <div class="card-body">
+                        <p style="text-align: center;">No records found.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <br><br>
+    </div>
+</main>
+{% endblock %}

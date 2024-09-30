@@ -1,0 +1,389 @@
+{% load static %}
+
+{% block additional_js %}
+<!--Main Script with Initialization Calls-->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const skills = ['speaking', 'listening', 'reading', 'writing'];
+
+    // Function to adjust field state based on input
+    function adjustFieldState(scoreField, totalField, reasonField) {
+        if (scoreField.value.trim() !== '') {
+            reasonField.disabled = true;
+            reasonField.value = '';
+            scoreField.disabled = false;
+        } else if (reasonField.value.trim() !== '') {
+            scoreField.disabled = true;
+            scoreField.value = '';
+            reasonField.disabled = false;
+        } else {
+            scoreField.disabled = false;
+            reasonField.disabled = false;
+        }
+
+        // Always keep total field enabled
+        totalField.disabled = false;
+    }
+
+    // Function to handle skill fields
+    function handleSkillFields(skillName, studentId) {
+        const scoreField = document.getElementById(`${skillName}_score_${studentId}`);
+        const totalField = document.getElementById(`${skillName}_total_${studentId}`);
+        const reasonField = document.getElementById(`${skillName}_missed_reason_${studentId}`);
+
+        adjustFieldState(scoreField, totalField, reasonField);
+
+        // Add event listeners to score and reason fields
+        scoreField.addEventListener('input', function() {
+            adjustFieldState(scoreField, totalField, reasonField);
+        });
+
+        reasonField.addEventListener('change', function() {
+            adjustFieldState(scoreField, totalField, reasonField);
+        });
+    }
+
+    // Function to initialize fields
+    function initializeFields() {
+        skills.forEach(skill => {
+            document.querySelectorAll(`input[id^="${skill}_score_"]`).forEach(input => {
+                const studentId = input.id.split('_').pop();
+                handleSkillFields(skill, studentId);
+            });
+        });
+    }
+
+    // Function to initialize global totals
+    function initializeGlobalTotals() {
+        skills.forEach(skill => {
+            const globalTotalInput = document.getElementById(`${skill}_total`);
+            const individualTotalInputs = document.querySelectorAll(`input[id^="${skill}_total_"]`);
+
+            if (globalTotalInput && globalTotalInput.value) {
+                individualTotalInputs.forEach(input => {
+                    if (!input.value) {
+                        input.value = globalTotalInput.value;
+                    }
+                    input.placeholder = globalTotalInput.value;
+                });
+            }
+        });
+    }
+
+    // Function to set up autosave
+    function setupAutosave() {
+        const autosaveInputs = document.querySelectorAll('.autosave-input');
+
+        autosaveInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const skill = this.dataset.skill;
+                const studentId = this.dataset.studentId;
+
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                formData.append('skill', skill);
+                formData.append('score', document.getElementById(`${skill}_score_${studentId}`).value);
+                formData.append('total', document.getElementById(`${skill}_total_${studentId}`).value);
+                formData.append('missed_reason', document.getElementById(`${skill}_missed_reason_${studentId}`).value);
+
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch('{% url 'manage_student_exams' exam_id=examination.id %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Autosave successful');
+                        updateUIAfterSave(studentId, skill, data);
+                        updateLastModifiedTimestamp(); // Update timestamp after successful save
+                    } else {
+                        console.error('Autosave failed:', data.error);
+                        showErrorMessage(studentId, skill, data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorMessage(studentId, skill, 'An error occurred while saving.');
+                });
+            });
+        });
+    }
+
+    // Function to update UI after save
+    function updateUIAfterSave(studentId, skill, data) {
+        if (data.percentage_score) {
+            const scoreInput = document.getElementById(`score_${studentId}`);
+            if (scoreInput) {
+                scoreInput.value = data.percentage_score;
+            }
+        }
+        updateFailedAssessments(studentId, data.failed_assessments);
+    }
+
+    // Function to update failed assessments
+    function updateFailedAssessments(studentId, failedAssessments) {
+        const failedAssessmentsContainer = document.querySelector(`#failed-assessments-${studentId}`);
+        if (failedAssessmentsContainer) {
+            failedAssessmentsContainer.innerHTML = '';
+            if (failedAssessments && failedAssessments.length > 0) {
+                failedAssessments.forEach(skill => {
+                    const failedDiv = document.createElement('div');
+                    failedDiv.className = 'failed-assessment';
+                    failedDiv.innerHTML = `<small class="text-danger">Failed: ${skill}</small>`;
+                    failedAssessmentsContainer.appendChild(failedDiv);
+                });
+            }
+        }
+    }
+
+    // Function to show error message
+    function showErrorMessage(studentId, skill, message) {
+        let errorElement = document.getElementById(`error-message-${studentId}-${skill}`);
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.id = `error-message-${studentId}-${skill}`;
+            errorElement.className = 'text-danger mt-1';
+            document.getElementById(`${skill}_score_${studentId}`).parentNode.appendChild(errorElement);
+        }
+        errorElement.textContent = message;
+
+        setTimeout(() => {
+            errorElement.remove();
+        }, 5000);
+    }
+
+    // Function to update last modified timestamp
+    function updateLastModifiedTimestamp() {
+        const now = new Date();
+        const formattedDate = formatDate(now);
+        const timestampElement = document.getElementById('last-modified-timestamp');
+        if (timestampElement) {
+            timestampElement.textContent = `Last modified: ${formattedDate}`;
+        }
+    }
+
+    // Function to format date
+    function formatDate(date) {
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    // Re-enable disabled fields before form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        document.querySelectorAll('input:disabled, select:disabled').forEach(field => {
+            field.disabled = false;
+        });
+    });
+
+    // Initialize all functionalities
+    initializeFields();
+    initializeGlobalTotals();
+    setupAutosave();
+    updateLastModifiedTimestamp();
+
+    // Call initialization functions from other scripts
+    if (typeof initializeAdminDecisions === 'function') {
+        initializeAdminDecisions();
+    }
+    if (typeof initializeWayForwardDropdowns === 'function') {
+        initializeWayForwardDropdowns();
+    }
+    if (typeof initializeGlobalTotalsHandling === 'function') {
+        initializeGlobalTotalsHandling();
+    }
+});
+</script>
+
+<!--decision is either "Approved" or "Rejected"-->
+<script>
+// Admin Decisions script
+function makeRowReadOnly(row) {
+    row.querySelectorAll('input, select').forEach(element => {
+        if (!element.classList.contains('way-forward-option')) {
+            element.setAttribute('readonly', true);
+            element.style.backgroundColor = '#f0f0f0';
+            element.style.color = '#888';
+        }
+    });
+}
+
+function initializeAdminDecisions() {
+    document.querySelectorAll('tr').forEach(row => {
+        const adminDecisionElement = row.querySelector('.admin-decision');
+        if (adminDecisionElement) {
+            const decision = adminDecisionElement.textContent.trim().toLowerCase();
+            if (decision.includes('approved') || decision.includes('rejected')) {
+                makeRowReadOnly(row);
+            }
+        }
+    });
+}
+</script>
+
+<!--Way Forward Dropdown Script-->
+<script>
+    // Way Forward Dropdown script
+function toggleWayForwardDropdown(button) {
+    const dropdownContent = button.nextElementSibling;
+    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+}
+
+function updateWayForward(button, value) {
+    const studentId = button.getAttribute('data-student-id');
+    const dropdownBtn = document.getElementById(`wayForwardBtn_${studentId}`);
+    dropdownBtn.querySelector('.way-forward-text').textContent = value;
+
+    // Update the selected state
+    const options = button.closest('.way-forward-options').getElementsByClassName('way-forward-option');
+    Array.from(options).forEach(opt => {
+        const checkIcon = opt.querySelector('i');
+        if (opt === button) {
+            opt.classList.add('selected');
+            checkIcon.classList.remove('d-none');
+        } else {
+            opt.classList.remove('selected');
+            checkIcon.classList.add('d-none');
+        }
+    });
+
+    // Close the dropdown after selection
+    const dropdown = button.closest('.way-forward-content');
+    if (dropdown) {
+        dropdown.style.display = 'none';
+    }
+
+    // Save the way forward value (you may want to implement an AJAX call here)
+    console.log(`Way forward for student ${studentId} updated to: ${value}`);
+}
+
+function initializeWayForwardDropdowns() {
+    // Close Way Forward dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.way-forward-dropdown')) {
+            const dropdowns = document.querySelectorAll('.way-forward-content');
+            dropdowns.forEach(dropdown => {
+                if (dropdown.style.display === 'block') {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+    });
+
+    // Prevent dropdown from affecting other fields
+    const wayForwardButtons = document.querySelectorAll('.way-forward-toggle');
+    wayForwardButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleWayForwardDropdown(this);
+        });
+    });
+
+    // Prevent dropdown options from affecting other fields
+    const wayForwardOptions = document.querySelectorAll('.way-forward-option');
+    wayForwardOptions.forEach(option => {
+        option.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const value = this.textContent.trim();
+            updateWayForward(this, value);
+        });
+    });
+}
+
+// Call the initialization function when the DOM is ready
+document.addEventListener('DOMContentLoaded', initializeWayForwardDropdowns);
+
+// Expose these functions to the global scope
+window.toggleWayForwardDropdown = toggleWayForwardDropdown;
+window.updateWayForward = updateWayForward;
+</script>
+
+<!--JavaScript for Global Totals-->
+<script>
+// Global Totals script
+function initializeGlobalTotalsHandling() {
+    const skills = ['speaking', 'listening', 'reading', 'writing'];
+
+    skills.forEach(skill => {
+        const globalTotalInput = document.getElementById(`${skill}_total`);
+        const individualTotalInputs = document.querySelectorAll(`input[id^="${skill}_total_"]`);
+
+        if (globalTotalInput) {
+            globalTotalInput.addEventListener('input', function() {
+                const globalValue = this.value;
+                individualTotalInputs.forEach(input => {
+                    input.value = globalValue;
+                    input.placeholder = globalValue || 'Total';
+                });
+            });
+
+            // Set initial values on page load
+            const initialGlobalValue = globalTotalInput.value;
+            if (initialGlobalValue) {
+                individualTotalInputs.forEach(input => {
+                    if (!input.value) {
+                        input.value = initialGlobalValue;
+                    }
+                    input.placeholder = initialGlobalValue;
+                });
+            }
+        }
+    });
+}
+</script>
+
+<!-- Script for autosave without page refresh -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const autosaveInputs = document.querySelectorAll('.autosave-input');
+
+    autosaveInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Perform autosave (assuming this is handled elsewhere)
+
+            // Show a minimalistic save confirmation
+            showSavedConfirmation(this);
+        });
+    });
+
+    function showSavedConfirmation(inputElement) {
+        let savedIndicator = inputElement.parentElement.querySelector('.saved-indicator');
+        if (!savedIndicator) {
+            savedIndicator = document.createElement('span');
+            savedIndicator.className = 'saved-indicator';
+            savedIndicator.style.color = 'green';
+            savedIndicator.style.fontSize = '0.8em';
+            savedIndicator.style.marginLeft = '5px';
+            inputElement.parentElement.appendChild(savedIndicator);
+        }
+        savedIndicator.textContent = 'Saved';
+
+        // Fade out the saved indicator after 2 seconds
+        setTimeout(() => {
+            savedIndicator.style.transition = 'opacity 1s';
+            savedIndicator.style.opacity = '0';
+        }, 2000);
+
+        // Remove the indicator after fading out
+        setTimeout(() => {
+            savedIndicator.remove();
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

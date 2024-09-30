@@ -1,0 +1,131 @@
+{% extends 'report_base.html' %}
+
+{% load static %}
+
+{% block content %}
+<style>
+    .featured-services {
+        background-color: #f8f8f8;
+        padding: 40px 0;
+    }
+
+    .featured-services .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 0 15px;
+    }
+
+    .featured-services .row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin: -15px;
+    }
+
+    .featured-services .icon-box {
+        background: #ffffff;
+        padding: 30px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        width: calc(33.333% - 30px);
+        margin: 15px;
+    }
+
+    .featured-services .icon-box:hover {
+        transform: translateY(-10px);
+    }
+
+    .featured-services .icon {
+        margin-bottom: 15px;
+        font-size: 36px;
+        color: #5BA2A3;
+    }
+
+    .featured-services h4.title {
+        margin-bottom: 15px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #007bff;
+    }
+
+    .featured-services .description {
+        text-align: center;
+        font-size: 14px;
+        line-height: 24px;
+        color: black;
+    }
+
+    .featured-services a.icon-box:hover,
+    .featured-services a.icon-box:focus,
+    .featured-services a.icon-box:active {
+        text-decoration: none;
+    }
+
+    @media (max-width: 991px) {
+        .featured-services .icon-box {
+            width: calc(50% - 30px);
+        }
+    }
+
+    @media (max-width: 767px) {
+        .featured-services .icon-box {
+            width: 100%;
+        }
+    }
+</style>
+
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container" data-aos="fade-up">
+            <div class="row">
+                <!-- Assessments -->
+                <a href="{% url 'assessments_view' %}" class="icon-box" data-aos="fade-up" data-aos-delay="100">
+                    <div class="icon"><i class="bi bi-journal-bookmark-fill"></i></div>
+                    <h4 class="title">Assessments</h4>
+                    <p class="description">This section includes all Examinations and Continuous Assessments recorded.</p>
+                </a>
+
+                <!-- Class Attendance -->
+                <a href="{% url 'attendance_overview' %}" class="icon-box" data-aos="fade-up" data-aos-delay="200">
+                    <div class="icon"><i class="bi bi-calendar2-week"></i></div>
+                    <h4 class="title">Class Attendance</h4>
+                    <p class="description">This section includes all Attendance records for each student in the school.</p>
+                </a>
+
+                <!-- Documents Overview -->
+                <a href="{% url 'display_documents' %}" class="icon-box" data-aos="fade-up" data-aos-delay="300">
+                    <div class="icon"><i class="bi bi-folder"></i></div>
+                    <h4 class="title">Documents Overview</h4>
+                    <p class="description">This section gives an overview of all Documents Uploaded for each Student.</p>
+                </a>
+
+                <!-- Teachers -->
+                <a href="{% url 'display_teachers' %}" class="icon-box" data-aos="fade-up" data-aos-delay="400">
+                    <div class="icon"><i class="bi bi-person-video3"></i></div>
+                    <h4 class="title">Teachers</h4>
+                    <p class="description">This section shows information captured about all Teachers in the system.</p>
+                </a>
+
+                <!-- Students (New) -->
+                <a href="#" class="icon-box" data-aos="fade-up" data-aos-delay="500">
+                    <div class="icon"><i class="bi bi-people"></i></div>
+                    <h4 class="title">Students</h4>
+                    <p class="description">This section provides comprehensive information about all students in the system.</p>
+                </a>
+
+                <!-- Payments (New) -->
+                <a href="#" class="icon-box" data-aos="fade-up" data-aos-delay="600">
+                    <div class="icon"><i class="bi bi-cash-stack"></i></div>
+                    <h4 class="title">Payments</h4>
+                    <p class="description">This section allows tracking and management of all school-related payments.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

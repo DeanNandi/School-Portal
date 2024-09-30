@@ -1,0 +1,44 @@
+<div class="modal fade" id="detailsModal{{ student_exam.id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ student_exam.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel{{ student_exam.id }}">
+                    Comments for {{ student_exam.student.First_Name }} {{ student_exam.student.Last_Name }}
+                </h5>
+
+            </div>
+            <div class="modal-body">
+                <h6>Teacher's Comments:</h6>
+                <p>{{ student_exam.examination_report.teachers_notes|default:"No notes available." }}</p>
+
+                {% if student_exam.examination_report.admin_decision != 'pending' %}
+                    <h6>Admin's Comments:</h6>
+                    <p>{{ student_exam.examination_report.admin_notes|default:"No comments available." }}</p>
+                    <h6>Response Date:</h6>
+                    <p>{{ student_exam.examination_report.admin_decision_date|date:"F d, Y H:i" }}</p>
+                {% endif %}
+
+                {% if student_exam.examination_report.admin_decision == 'pending' %}
+                    <hr>
+                    <h6>Admin Decision:</h6>
+                    <form method="post" action="{% url 'admin_approve_report' student_exam.examination_report.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="admin_decision" class="form-label">Approve or Reject:</label>
+                            <select class="form-select" id="admin_decision" name="admin_decision" required>
+                                <option value="">Select decision</option>
+                                <option value="approve">Approve</option>
+                                <option value="reject">Reject</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="admin_notes" class="form-label">Admin Comments:</label>
+                            <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Decision</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

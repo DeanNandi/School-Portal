@@ -1,0 +1,119 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        text-align: center;
+    }
+    .date-picker-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .date-picker-input {
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 16px;
+        margin: 0 10px;
+    }
+    .view-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+    .view-button:hover {
+        background-color: #0056b3;
+    }
+    .attendance-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .attendance-info p {
+        margin-bottom: 10px;
+    }
+    .attendance-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="mb-4"><i class="fas fa-calendar-alt"></i> View Attendance Records</h3>
+                <div class="attendance-info">
+                    <p><i class="fas fa-info-circle"></i> Select a date range to view detailed attendance records.</p>
+                    <p><i class="fas fa-calendar-check"></i> Earliest recorded date: {{ earliest_date|date:"F d, Y" }}</p>
+                    <p><i class="fas fa-calendar-times"></i> Latest recorded date: {{ latest_date|date:"F d, Y" }}</p>
+                </div>
+
+                <div class="date-picker-container">
+                    <input type="text" id="start-date" class="date-picker-input" placeholder="Start Date">
+                    <input type="text" id="end-date" class="date-picker-input" placeholder="End Date">
+                    <button id="view-attendance" class="view-button">View Attendance</button>
+                </div>
+
+                <div id="attendance-results">
+                    <!-- Attendance results will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Include necessary scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script>
+    $(document).ready(function() {
+        // Initialize date pickers
+        var commonConfig = {
+            dateFormat: "Y-m-d",
+            minDate: "{{ earliest_date|date:'Y-m-d' }}",
+            maxDate: "{{ latest_date|date:'Y-m-d' }}"
+        };
+
+        flatpickr("#start-date", commonConfig);
+        flatpickr("#end-date", commonConfig);
+
+        // Handle view attendance button click
+        $("#view-attendance").click(function() {
+            var startDate = $("#start-date").val();
+            var endDate = $("#end-date").val();
+
+            if (startDate && endDate) {
+                // Use the URL name to generate the correct URL
+                var url = "{% url 'view_attendance' start_date='0000-00-00' end_date='0000-00-00' %}";
+                url = url.replace('0000-00-00', startDate).replace('0000-00-00', endDate);
+                window.location.href = url;
+            } else {
+                alert("Please select both start and end dates.");
+            }
+        });
+    });
+</script>
+{% endblock %}

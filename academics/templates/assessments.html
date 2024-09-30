@@ -1,0 +1,307 @@
+{% extends 'report_base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+    .custom-table {
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .custom-table thead th {
+        border: none;
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .custom-table tbody tr {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .custom-table tbody tr:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-table tbody td {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+    }
+
+    .exam-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .exam-name {
+        font-weight: bold;
+        color: #007bff;
+        display: block;
+    }
+
+    .class-level {
+        font-size: 0.85em;
+        color: #6c757d;
+    }
+
+    .class-level-only {
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .badge {
+        font-size: 0.9em;
+        padding: 6px 10px;
+    }
+</style>
+
+<style>
+    .badge.bg-warning.text-dark {
+    font-size: 0.75em;
+    padding: 3px 6px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+</style>
+
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container">
+
+            <div class="filter-section">
+                <h5>Filter Records</h5>
+                <div class="filter-categories">
+                    <div class="filter-category">
+                        <h6>Locations</h6>
+                        <div class="filter-tags" id="course_location-filters">
+                            {% for location in unique_locations %}
+                            <span class="filter-tag {% if active_filters.course_location == location %}active{% endif %} {% if forloop.counter > 3 %}hidden{% endif %}"
+                                  data-filter="course_location" data-value="{{ location }}">
+                    {{ location }}
+                    {% if active_filters.course_location == location %}
+                        <i class="fas fa-check-circle"></i>
+                    {% endif %}
+                </span>
+                            {% endfor %}
+                        </div>
+                        {% if unique_locations|length > 3 %}
+                        <div class="load-more" data-target="course_location-filters">Show more</div>
+                        {% endif %}
+                        <div class="filter-info">{{ unique_locations|length }} locations available</div>
+                    </div>
+
+
+                    <div class="filter-category">
+    <h6>Class Times</h6>
+    <div class="filter-tags" id="class_time-filters">
+        {% for time in unique_class_times %}
+        <span class="filter-tag {% if active_filters.class_time == time %}active{% endif %} {% if forloop.counter > 3 %}hidden{% endif %}"
+              data-filter="class_time" data-value="{{ time }}">
+            {{ time }}
+            {% if active_filters.class_time == time %}
+                <i class="fas fa-check-circle"></i>
+            {% endif %}
+        </span>
+        {% endfor %}
+    </div>
+    {% if unique_class_times|length > 3 %}
+    <div class="load-more" data-target="class_time-filters">Show more</div>
+    {% endif %}
+    <div class="filter-info">{{ unique_class_times|length }} class times available</div>
+</div>
+                    <div class="filter-category">
+                        <h6>Teachers</h6>
+                        <div class="filter-tags" id="added_by-filters">
+                            {% for teacher in unique_added_by %}
+                            <span class="filter-tag {% if active_filters.added_by == teacher.user__id|stringformat:'s' %}active{% endif %} {% if forloop.counter > 3 %}hidden{% endif %}"
+                                  data-filter="added_by" data-value="{{ teacher.user__id }}">
+                                {{ teacher.user__first_name }} {{ teacher.user__last_name }}
+                                {% if active_filters.added_by == teacher.user__id|stringformat:'s' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% endif %}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% if unique_added_by|length > 3 %}
+                        <div class="load-more" data-target="added_by-filters">Show more</div>
+                        {% endif %}
+                        <div class="filter-info">{{ unique_added_by|length }} teachers available</div>
+                    </div>
+                </div>
+            </div>
+                </div>
+
+            <!-- Active Filters Display -->
+            <div id="active-filters-display" class="alert alert-info mt-3" style="display: none;">
+                <h6 class="mb-2">Active Filters:</h6>
+                <div id="active-filters"></div>
+                <a href="{% url 'assessments_view' %}" class="btn btn-outline-secondary btn-sm mt-2">Clear All Filters 🔄</a>
+            </div>
+
+<!-- assessments.html -->
+<div class="container mt-4">
+    <div class="card recent-sales overflow-auto">
+        <div class="card-body">
+            <h5 class="card-title">Assessment Records <span>| Select Class To View Detailed records</span></h5>
+            <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                <thead>
+                <tr>
+                    <th>Course Intake</th>
+                    <th>Teachers</th>
+                    <th>Total Students</th>
+                    <th>Location</th>
+                    <th>Previous Exam</th>
+                    <th>Next Exam</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for group in grouped_data %}
+                <tr>
+                    <td>
+                        <a href="{% url 'present_examinations' %}?course_class_no={{ group.class_no|urlencode }}&course_intake={{ group.course_intake|urlencode }}&teacher_id={{ group.teacher_id|urlencode }}&added_by={{ group.added_by_id|urlencode }}"
+                           class="exam-link">
+                            <span class="exam-name">{{ group.course_intake }} - {{ group.class_no }}</span>
+                        </a><br>
+                        <span class="class-time">
+                            <i class="fas fa-clock"></i> {{ group.class_time }}
+                        </span>
+                    </td>
+                    <td>{{ group.added_by }}</td>
+                    <td class="text-center">
+                        <span class="badge bg-info">{{ group.total_students }}</span>
+                    </td>
+                    <td>{{ group.location }}</td>
+                    <td>{{ group.previous_exam }}</td>
+                    <td>{{ group.next_exam }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+    const filterTags = document.querySelectorAll('.filter-tag');
+    const loadMoreButtons = document.querySelectorAll('.load-more');
+    const activeFiltersDisplay = document.getElementById('active-filters-display');
+    const activeFilters = document.getElementById('active-filters');
+
+    console.log('Number of filter tags:', filterTags.length);
+
+
+        function updateActiveFilters() {
+            const activeFilterTags = document.querySelectorAll('.filter-tag.active');
+            activeFilters.innerHTML = '';
+
+            if (activeFilterTags.length > 0) {
+                activeFilterTags.forEach(tag => {
+                    const filterName = tag.dataset.filter;
+                    const filterValue = tag.textContent.trim();
+                    const activeFilterSpan = document.createElement('span');
+                    activeFilterSpan.className = 'active-filter-tag';
+                    activeFilterSpan.dataset.filter = filterName;
+                    activeFilterSpan.dataset.value = tag.dataset.value;
+                    activeFilterSpan.innerHTML = `
+                        ${filterName.replace('_', ' ').charAt(0).toUpperCase() + filterName.slice(1)}: ${filterValue}
+                        <i class="fas fa-times remove-filter"></i>
+                    `;
+                    activeFilters.appendChild(activeFilterSpan);
+                });
+                activeFiltersDisplay.style.display = 'block';
+            } else {
+                activeFiltersDisplay.style.display = 'none';
+            }
+        }
+
+        filterTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                const filter = this.dataset.filter;
+                const value = this.dataset.value;
+
+                if (this.classList.contains('active')) {
+                    // If already active, remove the filter
+                    this.classList.remove('active');
+                    this.querySelector('.fa-check-circle')?.remove();
+                    removeFilter(filter);
+                } else {
+                    // If not active, apply the filter
+                    document.querySelectorAll(`.filter-tag[data-filter="${filter}"]`).forEach(t => {
+                        t.classList.remove('active');
+                        t.querySelector('.fa-check-circle')?.remove();
+                    });
+                    this.classList.add('active');
+                    const checkIcon = document.createElement('i');
+                    checkIcon.className = 'fas fa-check-circle ms-1';
+                    this.appendChild(checkIcon);
+                    applyFilter(filter, value);
+                }
+
+                updateActiveFilters();
+            });
+        });
+
+        activeFilters.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-filter')) {
+                const filterTag = e.target.closest('.active-filter-tag');
+                const filter = filterTag.dataset.filter;
+                removeFilter(filter);
+                document.querySelector(`.filter-tag[data-filter="${filter}"][data-value="${filterTag.dataset.value}"]`)?.classList.remove('active');
+                updateActiveFilters();
+            }
+        });
+
+        loadMoreButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.dataset.target;
+                const filterContainer = document.getElementById(targetId);
+                const hiddenFilters = filterContainer.querySelectorAll('.filter-tag.hidden');
+
+                hiddenFilters.forEach((filter) => {
+                    filter.classList.remove('hidden');
+                });
+
+                this.style.display = 'none';
+            });
+        });
+
+        function applyFilter(filter, value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set(filter, value);
+            window.location.href = url.toString();
+        }
+
+        function removeFilter(filter) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete(filter);
+            window.location.href = url.toString();
+        }
+
+        // Initialize active filters display
+        updateActiveFilters();
+
+        // Debug: Check if styles are applied
+        filterTags.forEach(tag => {
+            console.log(tag.textContent, window.getComputedStyle(tag).backgroundColor);
+        });
+    });
+</script>
+{% endblock %}
+

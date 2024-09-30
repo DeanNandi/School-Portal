@@ -1,0 +1,509 @@
+{% extends "qr_base.html" %}
+{% load static %}
+
+
+{% load humanize %}
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap');
+    body {
+        font-family: 'Quicksand', sans-serif;
+        background-color: #f2f2f2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        gap: 20px;
+        max-width: 1200px;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .card {
+        flex: 1;
+        min-width: 300px;
+        max-width: 900px;
+        background-color: #fff;
+        position: relative;
+        padding: 0;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        animation: fadeInScale 1s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+    .card-header {
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+        animation: fadeInDown 1s ease-in-out;
+    }
+    .student-header {
+        background-color: #FF6B6B;
+    }
+    .payment-header {
+        background-color: #4CAF50;
+    }
+    .card-header h2 {
+        margin: 0;
+        font-size: 24px;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    .card-body {
+        padding: 20px;
+        animation: fadeInUp 1s ease-in-out;
+        flex-grow: 1;
+        overflow-y: auto;
+        max-height: 600px;
+    }
+    .student-photo-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .student-info-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .info-column {
+        flex: 1;
+        padding: 0 10px;
+        max-width: 45%;
+    }
+    .card-item {
+        margin-bottom: 15px;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInItem 1s ease-in-out forwards;
+    }
+    .card-item:nth-child(1) { animation-delay: 0.2s; }
+    .card-item:nth-child(2) { animation-delay: 0.4s; }
+    .card-item:nth-child(3) { animation-delay: 0.6s; }
+    .card-item:nth-child(4) { animation-delay: 0.8s; }
+    .card-item p {
+        margin: 5px 0;
+        font-size: 16px;
+        color: #333;
+    }
+    .card-item p:first-child {
+        font-weight: bold;
+    }
+    .student-header + .card-body .card-item p:first-child {
+        color: #FF6B6B;
+    }
+    .payment-header + .card-body .card-item p:first-child {
+        color: #4CAF50;
+    }
+    .student-photo {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #FF6B6B;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    .student-photo:hover {
+        transform: scale(1.05);
+    }
+    .no-photo {
+        width: 150px;
+        height: 150px;
+        background-color: #f0f0f0;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 48px;
+        color: #999;
+    }
+    .payment-amount {
+        font-size: 18px;
+        font-weight: bold;
+        color: #4CAF50;
+    }
+    .payment-date {
+        font-style: italic;
+        color: #666;
+    }
+    @keyframes fadeInScale {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInItem {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+        .student-info-body {
+            flex-direction: column;
+        }
+        .info-column {
+            max-width: 100%;
+        }
+    }
+
+</style>
+<style>
+    .card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+        animation: fadeInScale 0.5s ease-out;
+    }
+
+    .card-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .payment-status-card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-top: 20px;
+        overflow: hidden;
+        animation: fadeInScale 0.5s ease-out;
+    }
+
+    .payment-status-header {
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .payment-status-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .payment-status-body {
+        padding: 20px;
+    }
+
+    .payment-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .payment-item {
+        flex: 1;
+        min-width: 100px;
+        margin: 10px 0;
+        text-align: center;
+    }
+
+    .payment-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .payment-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .payment-status {
+        text-align: center;
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 5px;
+        font-weight: 700;
+        transition: background-color 0.3s ease;
+    }
+
+    .status-paid {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .status-outstanding {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+<style>
+    <style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .payment-summary-cards {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .payment-summary-card {
+        flex: 1;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin: 0 10px;
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    .payment-summary-card:nth-child(1) { animation-delay: 0.1s; }
+    .payment-summary-card:nth-child(2) { animation-delay: 0.2s; }
+    .payment-summary-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .payment-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .payment-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .payment-status-card {
+        animation: fadeInUp 0.5s ease-out;
+        animation-delay: 0.4s;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        animation: fadeInUp 0.5s ease-out;
+        animation-delay: 0.5s;
+    }
+
+    .table th, .table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .table tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    .table tr:hover {
+        background-color: #e9ecef;
+    }
+
+    @media (max-width: 768px) {
+        .payment-summary-cards {
+            flex-direction: column;
+        }
+
+        .payment-summary-card {
+            margin: 10px 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <!-- Student Information Card -->
+    <div class="card">
+        <div class="card-header student-header">
+            <h2>Student Information</h2>
+        </div>
+        <div class="card-body">
+            <div class="student-photo-container">
+                {% if candidate.photo %}
+                    <img src="{{ candidate.photo.url }}" alt="Student Photo" class="student-photo">
+                {% else %}
+                    <div class="no-photo">
+                        <i class="fas fa-user"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="student-info-body">
+                <div class="info-column">
+                    <div class="card-item">
+                        <p>Name</p>
+                        <p>{{ candidate.full_name }}</p>
+                    </div>
+                    <div class="card-item">
+                        <p>Sex</p>
+                        <p>{{ candidate.Sex }}</p>
+                    </div>
+                    <div class="card-item">
+                        <p>Course Intake</p>
+                        <p>{{ candidate.course_intake }}</p>
+                    </div>
+                    <div class="card-item">
+                        <p>Admission Number</p>
+                        <p>{{ candidate.admission_number }}</p>
+                    </div>
+                </div>
+                <div class="info-column">
+                    <div class="card-item">
+                        <p>Location</p>
+                        <p>{{ scan.location }}</p>
+                    </div>
+                    <div class="card-item">
+                        <p>Scan Time</p>
+                        <p>{{ scan.scanned_at }}</p>
+                    </div>
+                    {% if scan.additional_info %}
+                    <div class="card-item">
+                        <p>Additional Info</p>
+                        <p>{{ scan.additional_info }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment History Card -->
+    <div class="card">
+        <div class="card-header payment-header">
+            <h2>Payment History</h2>
+        </div>
+        <div class="card-body">
+            {% if payment_records %}
+                {% for record in payment_records %}
+                    <div class="card-item">
+                        <p class="payment-amount">{{ record.amount_paid|intcomma }} KES.</p>
+                        <p class="payment-date">{{ record.date_of_payment|date:"F d, Y" }}</p>
+                        <p><strong>Receipt:</strong> {{ record.receipt_number }}</p>
+                        <p><strong>Mode:</strong> {{ record.mode_of_payment }}</p>
+                        {% if record.transaction_details %}
+                        <p><strong>Details:</strong> {{ record.transaction_details }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="card-item">
+                    <p>No payment records found for this candidate.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+<!-- Detailed Payment Status Card -->
+<div class="payment-status-card">
+    <div class="text-center payment-status-header">
+        <h3>Payment Status</h3>
+    </div>
+    <br>
+    <!-- Payment Summary Cards -->
+    <div class="text-center payment-summary-cards">
+        <div class="payment-summary-card">
+            <div class="payment-label">Total Fee</div>
+            <div class="payment-value">{{ total_fee|intcomma }} KES.</div>
+        </div>
+        <div class="payment-summary-card">
+            <div class="payment-label">Total Paid</div>
+            <div class="payment-value">{{ total_amount_paid|intcomma }} KES.</div>
+        </div>
+        <div class="payment-summary-card">
+            <div class="payment-label">Balance</div>
+            <div class="payment-value">{{ balance_remaining|intcomma }} KES.</div>
+        </div>
+    </div>
+
+    <!-- Detailed Payment Status Card -->
+    <div class="payment-status-card">
+        <div class="payment-status-body">
+            <div class="payment-status {% if balance_remaining == 0 %}status-paid{% else %}status-outstanding{% endif %}">
+                {% if balance_remaining == 0 %}
+                    PAID
+                {% else %}
+                    OUTSTANDING
+                {% endif %}
+            </div>
+
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Starting Month</th>
+                            <th>Due Date</th>
+                            <th>Amount Invoiced</th>
+                            <th>Invoice Number</th>
+                            <th>Payments Made</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in fees_with_payments %}
+                        <tr>
+                            <td data-label="Starting Month">{{ item.fee.starting_month|date:"F Y" }}</td>
+                            <td data-label="Due Date">{{ item.fee.due_date|date:"F d, Y" }}</td>
+                            <td data-label="Amount Invoiced">{{ item.fee.total_amount_to_pay|intcomma }} KES.</td>
+                            <td data-label="Invoice Number">{{ item.fee.invoice_number }}</td>
+                            <td data-label="Payments Made" style="color: {% if item.payment_made == item.fee.total_amount_to_pay %}green{% else %}red{% endif %};">
+                                {{ item.payment_made|intcomma }} KES.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

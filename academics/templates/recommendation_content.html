@@ -1,0 +1,13 @@
+<h6>Teacher's Suggestion:</h6>
+<p>{{ student_exam.examination_report.get_way_forward_display|default:"Not set" }}</p>
+
+<h6>Admin Decision:</h6>
+<p>{{ student_exam.examination_report.get_admin_decision_display|default:"Pending" }}</p>
+
+<button class="btn btn-info btn-sm mt-2" type="button" data-bs-toggle="modal" data-bs-target="#detailsModal{{ student_exam.id }}">
+    {% if student_exam.examination_report.admin_decision == 'pending' %}
+        Review & Respond
+    {% else %}
+        View Comments
+    {% endif %}
+</button>

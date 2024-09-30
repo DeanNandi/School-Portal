@@ -1,0 +1,135 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #f5f7fa;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .cohort-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .cohort-info h5, .cohort-info p {
+        margin-bottom: 10px;
+    }
+    .cohort-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    .time-options {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .time-option {
+        background-color: #ffffff;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: calc(20% - 15px);
+        min-width: 120px;
+    }
+    .time-option:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .time-option.selected {
+        border-color: #28a745;
+        background-color: #e8f5e9;
+    }
+    .time-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    .time-text {
+        text-align: center;
+        font-size: 14px;
+    }
+    @media (max-width: 992px) {
+        .time-option {
+            width: calc(25% - 15px);
+        }
+    }
+    @media (max-width: 768px) {
+        .time-option {
+            width: calc(33.333% - 15px);
+        }
+    }
+    @media (max-width: 576px) {
+        .time-option {
+            width: calc(50% - 15px);
+        }
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4">Select Time</h3>
+
+                <div class="cohort-info">
+                    <h5><i class="fas fa-users"></i> {{ course_class_no }} - {{ cohort.course_intake }}</h5>
+                    <p><i class="fas fa-calendar-alt"></i> Class Intake: {{ cohort.course_intake }}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Class Location: {{ teacher.course_location }}</p>
+                </div>
+
+                <form method="post" id="timeForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="course_class_no" value="{{ course_class_no }}">
+                    <div class="time-options">
+                        {% for value, display in time_choices.items %}
+                        <div class="time-option" onclick="selectTime(this, '{{ value }}')">
+                            {% if 'morning' in display %}
+                            <i class="fas fa-sun time-icon"></i>
+                            {% elif 'afternoon' in display %}
+                            <i class="fas fa-cloud-sun time-icon"></i>
+                            {% elif 'evening' in display %}
+                            <i class="fas fa-moon time-icon"></i>
+                            {% elif 'online' in display %}
+                            <i class="fas fa-laptop time-icon"></i>
+                            {% else %}
+                            <i class="fas fa-clock time-icon"></i>
+                            {% endif %}
+                            <span class="time-text">{{ display }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="time_filter" id="selected_time">
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+function selectTime(element, value) {
+    document.querySelectorAll('.time-option').forEach(el => el.classList.remove('selected'));
+    element.classList.add('selected');
+    document.getElementById('selected_time').value = value;
+    document.getElementById('timeForm').submit();
+}
+</script>
+{% endblock %}

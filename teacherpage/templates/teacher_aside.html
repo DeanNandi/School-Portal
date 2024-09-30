@@ -1,0 +1,84 @@
+{% load static %}
+<!-- teacher_aside.html -->
+<!-- ======= Mobile nav toggle button ======= -->
+<i class="bi bi-list mobile-nav-toggle d-xl-none"></i>
+
+<!-- ======= Header ======= -->
+<header id="header">
+
+    <div class="d-flex flex-column">
+
+        <div class="profile">
+            {% if teacher.passport_photo %}
+            <img src="{{ teacher.passport_photo.url }}" alt="" class="img-fluid rounded-circle">
+            {% else %}
+            <img src="{% static 'img/german_flag.png' %}" alt="" class="img-fluid rounded-circle">
+            {% endif %}
+            <h1 class="text-light"><a href="{% url 'homepage' %}">{{ teacher.first_name }} {{ teacher.last_name }}</a></h1>
+            <br>
+
+
+            <nav id="navbar" class="nav-menu navbar">
+
+                <ul>
+                                                        {% if teacher %}
+                    <li class="{% if request.resolver_match.url_name == 'homepage' %}active{% endif %}">
+                        <a href="{% url 'homepage' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'homepage' %}active{% endif %}">
+                            <i class="bx bx-home"></i> <span>Home Page</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.resolver_match.url_name == 'classes' or request.resolver_match.url_name == 'class_attendance_record' or request.resolver_match.url_name == 'filter_candidates' %}active{% endif %}">
+                        <a href="{% url 'classes' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'classes' or request.resolver_match.url_name == 'class_attendance_record' or request.resolver_match.url_name == 'filter_candidates' %}active{% endif %}">
+                           <i class="bi bi-person-lines-fill"></i><span>Record Attendance</span>
+                        </a>
+                    </li>
+
+                    <!-- Navigation item for Editing Attendance -->
+                    <li class="{% if request.resolver_match.url_name == 'edit_class_attendance' or request.resolver_match.url_name == 'list_attendance_dates' %}active{% endif %}">
+                        <a href="{% url 'list_attendance_dates' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'list_attendance_dates' %}active{% endif %}">
+                            <i class="bx bx-edit"></i> <span>Edit Attendance</span>
+                        </a>
+                    </li>
+
+                    <!-- Navigation item for Viewing Recorded Attendance -->
+                    <li class="{% if request.resolver_match.url_name == 'attendance_date_picker' or request.resolver_match.url_name == 'view_attendance' %}active{% endif %}">
+                        <a href="{% url 'attendance_date_picker' %}" class="nav-link scrollto">
+                            <i class="bx bx-calendar-check"></i> <span>Attendance Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="{% if request.resolver_match.url_name in 'class_numbers,filter_students_for_exam,existing_exams,manage_student_exams,create-examination' %}active{% endif %}">
+                        <a href="{% url 'class_numbers' %}" class="nav-link scrollto {% if request.resolver_match.url_name in 'class_numbers,filter_students_for_exam,existing_exams,manage_student_exams,create-examination' %}active{% endif %}">
+                           <i class="bi bi-journals"></i><span>Assessments</span>
+                        </a>
+                    </li>
+<!--                    <li class="{% if request.resolver_match.url_name in 'exam_class_numbers,reports_existing_exams,filter_students_for_reports' %}active{% endif %}">-->
+<!--                        <a href="{% url 'exam_class_numbers' %}" class="nav-link scrollto {% if request.resolver_match.url_name in 'manage_examination_reports,reports_existing_exams,filter_students_for_reports' %}active{% endif %}">-->
+<!--                          <i class="bi bi-newspaper"></i><span>Assessment Reports</span>-->
+<!--                        </a>-->
+<!--                    </li>-->
+
+
+                    <li class="{% if request.resolver_match.url_name == 'download-center' %}active{% endif %}">
+                        <a href="{% url 'download-center' %}" class="nav-link scrollto {% if request.resolver_match.url_name == 'menschen' %}active{% endif %}">
+                            <i class="bx bx-cloud-download"></i> <span>Download Center</span>
+
+                        </a>
+                    </li>
+
+                    <li><a href="{% url 'teacher-logout' %}" class="nav-link scrollto">
+                        <i class="bx bx-log-out"></i> <span>Log-Out</span></a>
+                    </li>
+                            {% else %}
+
+                    <li><a href="{% url 'teacher-logout' %}" class="nav-link scrollto">
+                        <i class="bx bx-log-out"></i> <span>Log-Out</span></a>
+                    </li>
+                </ul>
+
+            </nav><!-- .nav-menu -->
+                {% include "_footer.html" %}
+        </div>
+    </div>
+            {% endif %}
+</header><!-- End Header -->
